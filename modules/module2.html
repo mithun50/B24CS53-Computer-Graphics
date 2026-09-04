@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Module 2 · Output Primitives &amp; Attributes · B24CS53</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="progress"></div>
+
+  <div class="topbar">
+    <div class="tb-left">
+      <a class="home-link" href="../index.html">← Home</a>
+      <span class="deck-name">Module 2 · Output Primitives &amp; Attributes</span>
+    </div>
+    <div class="tb-right">
+      <span class="deck-name">B24CS53 · Ch 3 &amp; 4</span>
+    </div>
+  </div>
+
+  <div class="deck" style="--deck-accent: var(--mod2)">
+
+    <!-- 1: Title -->
+    <section class="slide title-slide active" data-title="Title">
+      <span class="kicker">Module 2 · Textbook 1 · Chapters 3 &amp; 4 · 9 Hours</span>
+      <h1>Graphics Output Primitives<br />&amp; Their Attributes</h1>
+      <p class="lead">Coordinate reference frames, drawing points, lines and curves in
+        OpenGL, and how attributes such as colour, thickness and style control the
+        appearance of every primitive.</p>
+      <div class="tags">
+        <span class="tag">Coordinate Frames</span>
+        <span class="tag">Point, Line, Curve Functions</span>
+        <span class="tag">Colour &amp; Gray Scale</span>
+        <span class="tag">Primitive Attributes</span>
+      </div>
+    </section>
+
+    <!-- 2: Roadmap -->
+    <section class="slide" data-title="Module Roadmap">
+      <h2>Module <span class="accent">Roadmap</span></h2>
+      <p class="subhead">First we draw shapes, then we control how they look</p>
+      <div class="two-col">
+        <div class="card">
+          <h3>Part A · Output Primitives (Ch 3)</h3>
+          <ul>
+            <li>Coordinate reference frames</li>
+            <li>2D world coordinate frames in OpenGL</li>
+            <li>OpenGL point functions</li>
+            <li>OpenGL line functions</li>
+            <li>OpenGL curve functions</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Part B · Attributes (Ch 4)</h3>
+          <ul>
+            <li>Colour and gray scale</li>
+            <li>Point attributes</li>
+            <li>Line attributes</li>
+            <li>Curve attributes</li>
+            <li>OpenGL point attribute functions</li>
+            <li>OpenGL line attribute functions</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3: Output primitives -->
+    <section class="slide" data-title="What are Output Primitives?">
+      <h2>Graphics Output <span class="accent">Primitives</span></h2>
+      <p class="subhead">The basic geometric building blocks of any picture</p>
+      <p><b>Output primitives</b> are the fundamental shapes and characters used to
+        describe a scene. Complex pictures are built by combining many of them.</p>
+      <div class="tiles">
+        <div class="tile"><div class="ic">📍</div><div class="tx"><h4>Point</h4><p>A single position, the simplest primitive.</p></div></div>
+        <div class="tile"><div class="ic">📏</div><div class="tx"><h4>Line</h4><p>A straight segment between two endpoints.</p></div></div>
+        <div class="tile"><div class="ic">🔵</div><div class="tx"><h4>Curve</h4><p>Circles, ellipses and splines.</p></div></div>
+        <div class="tile"><div class="ic">🔷</div><div class="tx"><h4>Polygon</h4><p>Filled areas and text.</p></div></div>
+      </div>
+      <div class="callout"><span class="lbl">Geometry vs Attributes</span>
+        <b>Geometry</b> is where a primitive sits (its coordinates). <b>Attributes</b> are
+        how it looks (colour, size, style). Module 2 covers both.</div>
+    </section>
+
+    <!-- 4: Coordinate reference frames -->
+    <section class="slide" data-title="Coordinate Reference Frames">
+      <h2>Coordinate <span class="accent">Reference Frames</span></h2>
+      <p class="subhead">Every primitive is specified relative to a coordinate system</p>
+      <div class="two-col">
+        <div>
+          <ul>
+            <li><b>Cartesian coordinates</b>: the standard (x, y) 2D system.</li>
+            <li><b>Screen coordinates</b>: integer pixel positions, origin often at a corner.</li>
+            <li><b>World coordinates</b>: the frame the whole scene is defined in.</li>
+            <li>A point is finally stored in the frame buffer at its device pixel location.</li>
+          </ul>
+          <pre><code><span class="tok-fn">setPixel</span>(x, y);          <span class="tok-com">// turn on pixel (x,y)</span>
+<span class="tok-fn">getPixel</span>(x, y, color);   <span class="tok-com">// read a pixel colour</span></code></pre>
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 220 180" width="220" role="img" aria-label="Cartesian axes with a point">
+            <line x1="20" y1="160" x2="200" y2="160" class="s-stroke-accent" stroke-width="2" marker-end="url(#ax)"/>
+            <line x1="20" y1="160" x2="20" y2="15" class="s-stroke-accent" stroke-width="2" marker-end="url(#ax)"/>
+            <text x="190" y="176" class="s-dim" font-size="12">x</text>
+            <text x="4" y="22" class="s-dim" font-size="12">y</text>
+            <circle cx="130" cy="70" r="6" class="s-fill-accent"/>
+            <line x1="130" y1="70" x2="130" y2="160" stroke="#7c86b5" stroke-dasharray="3 3"/>
+            <line x1="130" y1="70" x2="20" y2="70" stroke="#7c86b5" stroke-dasharray="3 3"/>
+            <text x="136" y="66" class="s-text" font-size="12">P(x, y)</text>
+            <defs><marker id="ax" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="s-fill-accent"/></marker></defs>
+          </svg>
+          <div class="cap">A point is an (x, y) pair in the chosen frame.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5: 2D world coords in OpenGL -->
+    <section class="slide" data-title="2D World Coordinates in OpenGL">
+      <h2>Specifying 2D World Coordinates in <span class="accent">OpenGL</span></h2>
+      <p class="subhead">Define which region of the world maps onto the window</p>
+      <pre><code><span class="tok-fn">glMatrixMode</span>(GL_PROJECTION);
+<span class="tok-fn">glLoadIdentity</span>();
+<span class="tok-fn">gluOrtho2D</span>(xmin, xmax, ymin, ymax); <span class="tok-com">// 2D clipping window</span></code></pre>
+      <div class="two-col">
+        <div>
+          <ul>
+            <li><code class="inline">gluOrtho2D</code> sets the 2D <b>world coordinate window</b>, the rectangle of world space shown in the display window.</li>
+            <li>Anything inside this range is visible; anything outside is clipped away.</li>
+            <li><code class="inline">glMatrixMode(GL_PROJECTION)</code> selects the projection matrix before you define the view.</li>
+            <li><code class="inline">glLoadIdentity()</code> resets it to a known state first.</li>
+          </ul>
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 220 150" width="220" role="img" aria-label="World window mapped to viewport">
+            <rect x="15" y="15" width="120" height="90" fill="none" class="s-stroke-accent" stroke-width="2"/>
+            <text x="18" y="12" class="s-dim" font-size="11">world window</text>
+            <text x="10" y="118" class="s-dim" font-size="10">(0,0)</text>
+            <text x="112" y="12" class="s-dim" font-size="10">(200,150)</text>
+            <rect x="150" y="40" width="60" height="45" class="s-fill-accent" opacity="0.85"/>
+            <text x="150" y="100" class="s-dim" font-size="11">viewport</text>
+          </svg>
+          <div class="cap">gluOrtho2D(0,200,0,150) maps world space to the window.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6: OpenGL point functions -->
+    <section class="slide" data-title="OpenGL Point Functions">
+      <h2>OpenGL <span class="accent">Point Functions</span></h2>
+      <p class="subhead">Plot one or more points inside glBegin(GL_POINTS)</p>
+      <div class="two-col">
+        <div>
+          <pre><code><span class="tok-fn">glBegin</span>(GL_POINTS);
+    <span class="tok-fn">glVertex2i</span>(<span class="tok-num">50</span>, <span class="tok-num">100</span>);
+    <span class="tok-fn">glVertex2i</span>(<span class="tok-num">75</span>, <span class="tok-num">150</span>);
+    <span class="tok-fn">glVertex2i</span>(<span class="tok-num">100</span>, <span class="tok-num">200</span>);
+<span class="tok-fn">glEnd</span>();</code></pre>
+          <ul>
+            <li><code class="inline">glVertex*</code> specifies a coordinate position.</li>
+            <li>Suffix: number of coordinates (2, 3, 4) plus data type (i, f, d, s).</li>
+            <li><code class="inline">glVertex2i</code> is 2 integer coordinates; <code class="inline">glVertex3f</code> is 3 floats.</li>
+            <li>You can also pass an array: <code class="inline">glVertex2iv(point)</code> where v means vector.</li>
+          </ul>
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 200 150" width="200" role="img" aria-label="Three plotted points">
+            <rect x="10" y="10" width="180" height="130" rx="6" class="s-surface s-border" stroke-width="1"/>
+            <circle cx="55" cy="105" r="5" class="s-fill-accent"/>
+            <circle cx="95" cy="70" r="5" class="s-fill-accent"/>
+            <circle cx="135" cy="40" r="5" class="s-fill-accent"/>
+          </svg>
+          <div class="cap">Each glVertex call places one point.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7: OpenGL line functions -->
+    <section class="slide" data-title="OpenGL Line Functions">
+      <h2>OpenGL <span class="accent">Line Functions</span></h2>
+      <p class="subhead">Three primitive modes decide how vertices connect</p>
+      <div class="figure">
+        <svg viewBox="0 0 600 130" width="600" role="img" aria-label="GL_LINES, GL_LINE_STRIP, GL_LINE_LOOP">
+          <g class="s-stroke-accent" stroke-width="2.5" fill="none">
+            <!-- GL_LINES -->
+            <line x1="20" y1="90" x2="70" y2="30"/>
+            <line x1="90" y1="30" x2="150" y2="90"/>
+            <!-- GL_LINE_STRIP -->
+            <polyline points="230,90 270,30 320,80 370,35"/>
+            <!-- GL_LINE_LOOP -->
+            <polygon points="460,90 500,30 560,55 540,95"/>
+          </g>
+          <g class="s-dim" font-size="12" text-anchor="middle">
+            <text x="85" y="115">GL_LINES</text>
+            <text x="300" y="115">GL_LINE_STRIP</text>
+            <text x="510" y="115">GL_LINE_LOOP</text>
+          </g>
+        </svg>
+        <div class="cap">Separate segments, an open polyline, or a closed loop.</div>
+      </div>
+      <table class="tbl">
+        <tr><th>Primitive</th><th>Behaviour</th></tr>
+        <tr><td><code class="inline">GL_LINES</code></td><td>Each pair of vertices is a separate segment</td></tr>
+        <tr><td><code class="inline">GL_LINE_STRIP</code></td><td>Connected polyline: v0 to v1 to v2 and so on</td></tr>
+        <tr><td><code class="inline">GL_LINE_LOOP</code></td><td>Like strip, but also joins the last vertex back to the first</td></tr>
+      </table>
+      <div class="demo">
+        <div class="demo-head"><span class="dot-live"></span><span class="lbl">Interactive · anime.js</span></div>
+        <div data-demo="line-modes"></div>
+        <div class="cap">Switch between the three modes to see how the same five vertices connect differently.</div>
+      </div>
+    </section>
+
+    <!-- 8: OpenGL curve functions -->
+    <section class="slide" data-title="OpenGL Curve Functions">
+      <h2>OpenGL <span class="accent">Curve Functions</span></h2>
+      <p class="subhead">OpenGL has no direct circle primitive, so curves are approximated</p>
+      <div class="two-col">
+        <div>
+          <ul>
+            <li>Circles, ellipses and arcs are drawn as a <b>series of short line segments</b>, a polyline.</li>
+            <li>The <b>GLU library</b> provides functions for smooth curves and surfaces such as spheres, cylinders and disks.</li>
+            <li>More points give a smoother curve but need more computation.</li>
+          </ul>
+          <pre><code><span class="tok-key">for</span> (i = <span class="tok-num">0</span>; i &lt; n; i++) {
+  theta = <span class="tok-num">2</span>*PI*i/n;
+  x = xc + r*<span class="tok-fn">cos</span>(theta);
+  y = yc + r*<span class="tok-fn">sin</span>(theta);
+  <span class="tok-fn">glVertex2f</span>(x, y);
+}</code></pre>
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 200 160" width="200" role="img" aria-label="Circle from line segments">
+            <polygon points="100,20 138,32 162,64 162,104 138,136 100,148 62,136 38,104 38,64 62,32"
+                     fill="none" class="s-stroke-accent" stroke-width="2.5"/>
+            <g class="s-fill-accent">
+              <circle cx="100" cy="20" r="3"/><circle cx="138" cy="32" r="3"/><circle cx="162" cy="64" r="3"/>
+              <circle cx="162" cy="104" r="3"/><circle cx="138" cy="136" r="3"/><circle cx="100" cy="148" r="3"/>
+              <circle cx="62" cy="136" r="3"/><circle cx="38" cy="104" r="3"/><circle cx="38" cy="64" r="3"/><circle cx="62" cy="32" r="3"/>
+            </g>
+          </svg>
+          <div class="cap">A circle is many short segments joined together.</div>
+        </div>
+      </div>
+      <div class="callout"><span class="lbl">GLU quadrics</span>
+        <code class="inline">gluNewQuadric()</code>, <code class="inline">gluSphere()</code>,
+        <code class="inline">gluCylinder()</code> and <code class="inline">gluDisk()</code> build curved surfaces for you.</div>
+    </section>
+
+    <!-- 9: Fill-area / polygons -->
+    <section class="slide" data-title="Polygon Fill Primitives">
+      <h2>Polygon <span class="accent">Fill Area Primitives</span></h2>
+      <p class="subhead">Filled shapes are as common as line drawings</p>
+      <div class="figure">
+        <svg viewBox="0 0 560 110" width="560" role="img" aria-label="Triangle and quad fill primitives">
+          <polygon points="30,90 90,90 60,25" class="s-fill-accent"/>
+          <text x="35" y="105" class="s-dim" font-size="11">GL_TRIANGLES</text>
+          <polygon points="150,90 150,30 210,30 210,90" class="s-fill-accent" opacity="0.85"/>
+          <text x="150" y="105" class="s-dim" font-size="11">GL_QUADS</text>
+          <polygon points="290,60 320,25 360,30 380,65 350,95 310,90" class="s-fill-accent" opacity="0.7"/>
+          <text x="300" y="107" class="s-dim" font-size="11">GL_POLYGON</text>
+          <polygon points="440,90 470,30 500,90" fill="none" class="s-stroke-accent" stroke-width="2"/>
+          <polygon points="470,30 500,90 530,30" fill="none" class="s-stroke-accent" stroke-width="2"/>
+          <text x="440" y="105" class="s-dim" font-size="11">TRIANGLE_STRIP</text>
+        </svg>
+        <div class="cap">OpenGL offers several ways to fill areas.</div>
+      </div>
+      <table class="tbl">
+        <tr><th>Primitive</th><th>Meaning</th></tr>
+        <tr><td><code class="inline">GL_POLYGON</code></td><td>Single filled convex polygon</td></tr>
+        <tr><td><code class="inline">GL_TRIANGLES</code></td><td>Every 3 vertices form one triangle</td></tr>
+        <tr><td><code class="inline">GL_TRIANGLE_STRIP</code></td><td>Connected strip of triangles</td></tr>
+        <tr><td><code class="inline">GL_TRIANGLE_FAN</code></td><td>Triangles sharing the first vertex</td></tr>
+        <tr><td><code class="inline">GL_QUADS</code></td><td>Every 4 vertices form one quadrilateral</td></tr>
+      </table>
+      <div class="callout warn"><span class="lbl">Convex only</span>
+        OpenGL fills a polygon correctly only if it is convex. Concave shapes must be
+        split into convex pieces such as triangles.</div>
+    </section>
+
+    <!-- 10: Attributes intro -->
+    <section class="slide title-slide" data-title="Part B: Attributes">
+      <span class="kicker">Part B · Chapter 4</span>
+      <h1>Attributes of<br />Graphics Primitives</h1>
+      <p class="lead">Attributes are parameters that control how a primitive is displayed,
+        such as its colour, size, thickness and style.</p>
+    </section>
+
+    <!-- 11: Colour and gray scale -->
+    <section class="slide" data-title="Colour & Gray Scale">
+      <h2>Colour and <span class="accent">Gray Scale</span></h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Colour</h3>
+          <ul>
+            <li><b>RGB model</b>: a colour is a mix of red, green and blue.</li>
+            <li><b>Direct or true colour</b>: each pixel stores its full RGB value.</li>
+            <li><b>Colour lookup table</b>: a pixel stores an index into a palette.</li>
+          </ul>
+          <pre><code><span class="tok-fn">glColor3f</span>(<span class="tok-num">1.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>); <span class="tok-com">// red</span></code></pre>
+        </div>
+        <div class="card">
+          <h3>Gray scale</h3>
+          <ul>
+            <li>Shades of gray on monochrome systems.</li>
+            <li>Equal R, G and B gives gray; the value sets brightness.</li>
+            <li>Levels run from black (0) to white (max).</li>
+          </ul>
+          <pre><code><span class="tok-fn">glColor3f</span>(<span class="tok-num">0.5</span>, <span class="tok-num">0.5</span>, <span class="tok-num">0.5</span>); <span class="tok-com">// mid gray</span></code></pre>
+        </div>
+      </div>
+      <div class="swatches">
+        <div class="swatch" style="background:#ff5a5a">Red<br>1,0,0</div>
+        <div class="swatch" style="background:#4ade80">Green<br>0,1,0</div>
+        <div class="swatch" style="background:#5b8cff">Blue<br>0,0,1</div>
+        <div class="swatch" style="background:#ffcf5c">Yellow<br>1,1,0</div>
+        <div class="swatch" style="background:#e8ecff">White<br>1,1,1</div>
+        <div class="swatch" style="background:#808080;color:#fff">Gray<br>.5,.5,.5</div>
+      </div>
+    </section>
+
+    <!-- 12: Point attributes -->
+    <section class="slide" data-title="Point Attributes">
+      <h2>Point <span class="accent">Attributes</span></h2>
+      <p class="subhead">Two things control how a point looks</p>
+      <div class="two-col">
+        <div>
+          <ul>
+            <li><b>Colour</b>, set by the current colour state.</li>
+            <li><b>Size</b>: a point can be drawn larger than a single pixel, as a small square.</li>
+          </ul>
+          <div class="callout good"><span class="lbl">OpenGL point size</span>
+            <code class="inline">glPointSize(size)</code> sets the point diameter in pixels
+            (default 1.0). Call it before <code class="inline">glBegin(GL_POINTS)</code>.</div>
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 220 90" width="220" role="img" aria-label="Points of increasing size">
+            <circle cx="30" cy="45" r="3" class="s-fill-accent"/>
+            <circle cx="80" cy="45" r="6" class="s-fill-accent"/>
+            <circle cx="140" cy="45" r="10" class="s-fill-accent"/>
+            <circle cx="200" cy="45" r="14" class="s-fill-accent"/>
+            <text x="14" y="80" class="s-dim" font-size="10">size 1</text>
+            <text x="122" y="80" class="s-dim" font-size="10">larger size</text>
+          </svg>
+          <div class="cap">glPointSize grows the point.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13: Line attributes -->
+    <section class="slide" data-title="Line Attributes">
+      <h2>Line <span class="accent">Attributes</span></h2>
+      <p class="subhead">Colour, width and style define how lines look</p>
+      <div class="tiles">
+        <div class="tile"><div class="ic">📶</div><div class="tx"><h4>Line width</h4><p>Thickness of the line in pixels.</p></div></div>
+        <div class="tile"><div class="ic">┈</div><div class="tx"><h4>Line style</h4><p>Solid, dashed, dotted, dash dot patterns.</p></div></div>
+        <div class="tile"><div class="ic">🎨</div><div class="tx"><h4>Line colour</h4><p>Set by the current colour state.</p></div></div>
+      </div>
+      <div class="figure">
+        <svg viewBox="0 0 420 110" width="420" role="img" aria-label="Line styles">
+          <line x1="20" y1="25" x2="400" y2="25" class="s-stroke-accent" stroke-width="1"/>
+          <line x1="20" y1="50" x2="400" y2="50" class="s-stroke-accent" stroke-width="4"/>
+          <line x1="20" y1="75" x2="400" y2="75" class="s-stroke-accent" stroke-width="2" stroke-dasharray="12 6"/>
+          <line x1="20" y1="98" x2="400" y2="98" class="s-stroke-accent" stroke-width="2" stroke-dasharray="2 5"/>
+        </svg>
+        <div class="cap">Thin, thick, dashed and dotted lines.</div>
+      </div>
+      <p>Dashed lines use a <b>pixel mask</b> (bit pattern) along the line: where the mask
+        bit is 1 the pixel is drawn, where it is 0 it is skipped, creating the dashes.</p>
+    </section>
+
+    <!-- 14: Curve attributes -->
+    <section class="slide" data-title="Curve Attributes">
+      <h2>Curve <span class="accent">Attributes</span></h2>
+      <p class="subhead">Curves share the same attribute parameters as lines</p>
+      <ul>
+        <li><b>Colour</b>: the current colour applies to the whole curve.</li>
+        <li><b>Width or thickness</b>: set like line width.</li>
+        <li><b>Style</b>: dashed or dotted patterns applied along the curve.</li>
+      </ul>
+      <div class="callout"><span class="lbl">Because curves are polylines</span>
+        In OpenGL a curve is a sequence of short segments, so the same
+        <code class="inline">glLineWidth</code> and stipple attributes apply to it automatically.</div>
+    </section>
+
+    <!-- 15: OpenGL point attribute functions -->
+    <section class="slide" data-title="OpenGL Point Attribute Functions">
+      <h2>OpenGL Point <span class="accent">Attribute Functions</span></h2>
+      <pre><code><span class="tok-fn">glPointSize</span>(<span class="tok-num">3.0</span>);          <span class="tok-com">// 3 pixel wide points</span>
+<span class="tok-fn">glColor3f</span>(<span class="tok-num">0.0</span>,<span class="tok-num">1.0</span>,<span class="tok-num">0.0</span>);    <span class="tok-com">// green</span>
+
+<span class="tok-fn">glBegin</span>(GL_POINTS);
+    <span class="tok-fn">glVertex2i</span>(<span class="tok-num">50</span>,<span class="tok-num">50</span>);
+    <span class="tok-fn">glVertex2i</span>(<span class="tok-num">100</span>,<span class="tok-num">80</span>);
+<span class="tok-fn">glEnd</span>();</code></pre>
+      <ul>
+        <li><code class="inline">glPointSize(GLfloat size)</code> sets the point size in pixels.</li>
+        <li><code class="inline">glColor3f</code>, <code class="inline">glColor3i</code>, <code class="inline">glColor4f</code> set the current colour.</li>
+        <li>Attributes are <b>state</b>: they stay in effect until you change them.</li>
+      </ul>
+    </section>
+
+    <!-- 16: OpenGL line attribute functions -->
+    <section class="slide" data-title="OpenGL Line Attribute Functions">
+      <h2>OpenGL Line <span class="accent">Attribute Functions</span></h2>
+      <pre><code><span class="tok-fn">glLineWidth</span>(<span class="tok-num">2.0</span>);                 <span class="tok-com">// 2 pixel wide lines</span>
+
+<span class="tok-fn">glEnable</span>(GL_LINE_STIPPLE);         <span class="tok-com">// turn on dashed lines</span>
+<span class="tok-fn">glLineStipple</span>(<span class="tok-num">1</span>, <span class="tok-num">0x00FF</span>);        <span class="tok-com">// factor, 16 bit pattern</span>
+
+<span class="tok-fn">glBegin</span>(GL_LINES);
+    <span class="tok-fn">glVertex2i</span>(<span class="tok-num">20</span>,<span class="tok-num">20</span>);
+    <span class="tok-fn">glVertex2i</span>(<span class="tok-num">180</span>,<span class="tok-num">120</span>);
+<span class="tok-fn">glEnd</span>();
+
+<span class="tok-fn">glDisable</span>(GL_LINE_STIPPLE);</code></pre>
+      <ul>
+        <li><code class="inline">glLineWidth(GLfloat w)</code> sets the line thickness.</li>
+        <li><code class="inline">glLineStipple(factor, pattern)</code> defines a dash pattern; the 16 bit mask is stretched by the factor.</li>
+        <li>Enable with <code class="inline">glEnable(GL_LINE_STIPPLE)</code> and disable when done.</li>
+      </ul>
+    </section>
+
+    <!-- 17: Worked example -->
+    <section class="slide" data-title="Worked Example">
+      <h2>Putting it <span class="accent">Together</span></h2>
+      <p class="subhead">A thick red triangle outline with big blue points at the corners</p>
+      <div class="two-col">
+        <div>
+          <pre><code><span class="tok-key">void</span> <span class="tok-fn">display</span>(<span class="tok-key">void</span>) {
+    <span class="tok-fn">glClear</span>(GL_COLOR_BUFFER_BIT);
+
+    <span class="tok-com">// red triangle outline, 3px wide</span>
+    <span class="tok-fn">glColor3f</span>(<span class="tok-num">1</span>,<span class="tok-num">0</span>,<span class="tok-num">0</span>);
+    <span class="tok-fn">glLineWidth</span>(<span class="tok-num">3.0</span>);
+    <span class="tok-fn">glBegin</span>(GL_LINE_LOOP);
+        <span class="tok-fn">glVertex2i</span>(<span class="tok-num">50</span>,<span class="tok-num">50</span>);
+        <span class="tok-fn">glVertex2i</span>(<span class="tok-num">150</span>,<span class="tok-num">50</span>);
+        <span class="tok-fn">glVertex2i</span>(<span class="tok-num">100</span>,<span class="tok-num">140</span>);
+    <span class="tok-fn">glEnd</span>();
+
+    <span class="tok-com">// big blue corner points</span>
+    <span class="tok-fn">glColor3f</span>(<span class="tok-num">0</span>,<span class="tok-num">0</span>,<span class="tok-num">1</span>);
+    <span class="tok-fn">glPointSize</span>(<span class="tok-num">8.0</span>);
+    <span class="tok-fn">glBegin</span>(GL_POINTS);
+        <span class="tok-fn">glVertex2i</span>(<span class="tok-num">50</span>,<span class="tok-num">50</span>);
+        <span class="tok-fn">glVertex2i</span>(<span class="tok-num">150</span>,<span class="tok-num">50</span>);
+        <span class="tok-fn">glVertex2i</span>(<span class="tok-num">100</span>,<span class="tok-num">140</span>);
+    <span class="tok-fn">glEnd</span>();
+    <span class="tok-fn">glFlush</span>();
+}</code></pre>
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 200 170" width="200" role="img" aria-label="Rendered triangle with corner points">
+            <rect x="8" y="8" width="184" height="154" rx="6" class="s-surface s-border" stroke-width="1"/>
+            <polygon points="45,120 155,120 100,35" fill="none" stroke="#ff5a5a" stroke-width="4" stroke-linejoin="round"/>
+            <circle cx="45" cy="120" r="8" fill="#5b8cff"/>
+            <circle cx="155" cy="120" r="8" fill="#5b8cff"/>
+            <circle cx="100" cy="35" r="8" fill="#5b8cff"/>
+          </svg>
+          <div class="cap">The result of the code on the left.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18: Summary -->
+    <section class="slide" data-title="Summary">
+      <h2>Module 2 <span class="accent">Summary</span></h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Output Primitives</h3>
+          <ul>
+            <li>Coordinate frames run from world space to device space.</li>
+            <li><code class="inline">gluOrtho2D</code> defines the 2D world window.</li>
+            <li>Points use <code class="inline">GL_POINTS</code>; lines use LINES, STRIP or LOOP.</li>
+            <li>Curves are approximated by line segments; GLU handles smooth surfaces.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Attributes</h3>
+          <ul>
+            <li>Colour (RGB) and gray scale via <code class="inline">glColor*</code>.</li>
+            <li>Point size via <code class="inline">glPointSize</code>.</li>
+            <li>Line width via <code class="inline">glLineWidth</code>; style via <code class="inline">glLineStipple</code>.</li>
+            <li>Attributes are persistent OpenGL state.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout good"><span class="lbl">Next up</span>
+        Module 3, line drawing algorithms and 2D and 3D transformations, Chapters 5, 6 and 8.</div>
+    </section>
+
+    <section class="slide" data-title="Sources & References">
+      <h2>Sources &amp; <span class="accent">References</span></h2>
+      <p class="subhead">Textbook chapters and official documentation for this module</p>
+      <div class="card">
+        <ul>
+          <li>Hearn, Baker &amp; Carithers, <b>Computer Graphics with OpenGL</b>, 4th ed., Pearson, 2014, <b>Chapter 3</b> (Graphics Output Primitives) and <b>Chapter 4</b> (Attributes of Graphics Primitives).</li>
+          <li>OpenGL point, line and colour commands:
+            <a href="https://www.opengl.org/sdk/docs/" target="_blank" rel="noopener">OpenGL / GLU reference pages</a>,
+            <a href="https://registry.khronos.org/OpenGL/" target="_blank" rel="noopener">Khronos OpenGL Registry</a>.</li>
+          <li>Reference: Edward Angel, <b>Interactive Computer Graphics</b>, 5th ed., Pearson, 2008.</li>
+        </ul>
+      </div>
+      <div class="callout"><span class="lbl">Lecturer</span> Mr. Bharath · B24CS53 Computer Graphics.</div>
+    </section>
+
+  </div>
+
+  <div class="overview">
+    <button class="ov-close" data-ov-close>✕ Close</button>
+    <h3>Module 2 · Slide Overview</h3>
+    <div class="ov-grid"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" data-prev>← Prev</button>
+    <div class="center">
+      <button class="btn mini" data-overview title="Overview (O)">▦</button>
+      <span class="counter" data-counter>1 / 1</span>
+      <button class="btn mini" data-fullscreen title="Fullscreen (F)">⛶</button>
+      <button class="btn mini" data-help title="Keyboard help (H)">?</button>
+    </div>
+    <button class="btn" data-next>Next →</button>
+  </div>
+
+  <div class="help-overlay" aria-hidden="true">
+    <div class="help-card">
+      <h3>Keyboard &amp; Controls</h3>
+      <div class="help-row"><span>Next slide</span><span><span class="kbd">→</span> <span class="kbd">Space</span></span></div>
+      <div class="help-row"><span>Previous slide</span><span><span class="kbd">←</span></span></div>
+      <div class="help-row"><span>First / last slide</span><span><span class="kbd">Home</span> <span class="kbd">End</span></span></div>
+      <div class="help-row"><span>Jump to slide N</span><span><span class="kbd">1</span> … <span class="kbd">9</span></span></div>
+      <div class="help-row"><span>Slide overview</span><span><span class="kbd">O</span></span></div>
+      <div class="help-row"><span>Fullscreen</span><span><span class="kbd">F</span></span></div>
+      <div class="help-row"><span>Print / save as PDF</span><span><span class="kbd">P</span></span></div>
+      <div class="help-row"><span>This help</span><span><span class="kbd">H</span> <span class="kbd">?</span></span></div>
+      <button class="btn help-close" data-help-close>Close</button>
+    </div>
+  </div>
+
+  <script src="../js/deck.js"></script>
+  <script src="../js/visuals.js"></script>
+  <script src="../js/spotlight.js"></script>
+</body>
+</html>

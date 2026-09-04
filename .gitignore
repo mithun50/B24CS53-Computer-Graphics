@@ -1,0 +1,7 @@
+# Working artifacts, not part of the site
+syllabus.txt
+
+# OS / editor cruft
+Thumbs.db
+.DS_Store
+*.tmp

@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Module 1 · Graphics Hardware &amp; Software · B24CS53</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="progress"></div>
+
+  <div class="topbar">
+    <div class="tb-left">
+      <a class="home-link" href="../index.html">← Home</a>
+      <span class="deck-name">Module 1 · Graphics Hardware &amp; Software</span>
+    </div>
+    <div class="tb-right">
+      <span class="deck-name">B24CS53 · Ch 1 &amp; 2</span>
+    </div>
+  </div>
+
+  <div class="deck" style="--deck-accent: var(--mod1)">
+
+    <!-- 1: Title -->
+    <section class="slide title-slide active" data-title="Title">
+      <span class="kicker">Module 1 · Textbook 1 · Chapters 1 &amp; 2 · 9 Hours</span>
+      <h1>Computer Graphics<br />Hardware &amp; Software</h1>
+      <p class="lead">Display devices and systems, plus the software foundations of
+        graphics: coordinate representations, graphics functions, and an introduction to
+        OpenGL with the GLUT toolkit.</p>
+      <div class="tags">
+        <span class="tag">Video Display Devices</span>
+        <span class="tag">Raster &amp; Random Scan</span>
+        <span class="tag">CRT · LCD · Flat Panel</span>
+        <span class="tag">OpenGL &amp; GLUT</span>
+      </div>
+    </section>
+
+    <!-- 2: Roadmap -->
+    <section class="slide" data-title="Module Roadmap">
+      <h2>Module <span class="accent">Roadmap</span></h2>
+      <p class="subhead">Two halves: the hardware that shows pixels, and the software that commands them</p>
+      <div class="two-col">
+        <div class="card">
+          <h3>Part A · Graphics Hardware</h3>
+          <ul>
+            <li>Video display devices</li>
+            <li>Raster scan systems</li>
+            <li>Random scan (vector) displays</li>
+            <li>Colour CRT monitors</li>
+            <li>Flat panel displays and LCDs</li>
+            <li>Graphics workstations and viewing systems</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Part B · Graphics Software</h3>
+          <ul>
+            <li>Coordinate representations</li>
+            <li>Graphics functions</li>
+            <li>Introduction to OpenGL</li>
+            <li>Related libraries and GLUT</li>
+            <li>A complete OpenGL program</li>
+            <li>Error handling in OpenGL</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3: What is CG -->
+    <section class="slide" data-title="What is Computer Graphics?">
+      <h2>What is <span class="accent">Computer Graphics?</span></h2>
+      <p class="subhead">Creating, storing and manipulating pictures with a computer</p>
+      <p>A picture on screen is a grid of tiny coloured squares called
+        <b>pixels</b> (picture elements). The colour of every pixel is held in memory
+        called the <b>frame buffer</b>, and the display hardware reads this memory many
+        times per second to keep the image visible.</p>
+      <div class="tiles">
+        <div class="tile"><div class="ic">🎮</div><div class="tx"><h4>Interactive</h4><p>Games, VR and CAD, where the user changes the image in real time.</p></div></div>
+        <div class="tile"><div class="ic">🎬</div><div class="tx"><h4>Passive</h4><p>Rendered films and pre-computed animation that the user only views.</p></div></div>
+        <div class="tile"><div class="ic">🩻</div><div class="tx"><h4>Visualization</h4><p>Medical imaging, scientific and data visualization.</p></div></div>
+        <div class="tile"><div class="ic">📐</div><div class="tx"><h4>Design</h4><p>CAD and CAM for engineering and architecture.</p></div></div>
+      </div>
+      <div class="figure">
+        <svg viewBox="0 0 520 90" width="520" role="img" aria-label="Pixel grid forming an image">
+          <g>
+            <text x="0" y="16" class="s-dim" font-size="12">A picture is a grid of pixels:</text>
+          </g>
+          <g transform="translate(0,26)">
+            <!-- pixel grid -->
+            <g>
+              <rect x="0" y="0" width="180" height="54" fill="none" class="s-border" stroke-width="1"/>
+              <!-- draw some on pixels forming a diagonal -->
+              <rect x="0"  y="36" width="18" height="18" class="s-fill-accent"/>
+              <rect x="18" y="36" width="18" height="18" class="s-fill-accent"/>
+              <rect x="36" y="18" width="18" height="18" class="s-fill-accent"/>
+              <rect x="54" y="18" width="18" height="18" class="s-fill-accent"/>
+              <rect x="72" y="0"  width="18" height="18" class="s-fill-accent"/>
+              <rect x="90" y="0"  width="18" height="18" class="s-fill-accent"/>
+            </g>
+          </g>
+          <text x="230" y="55" class="s-dim" font-size="13">Zoom out and the pixels blend into a smooth image.</text>
+        </svg>
+        <div class="cap">Resolution is the number of pixels; more pixels means a sharper picture.</div>
+      </div>
+    </section>
+
+    <!-- 4: Video display devices -->
+    <section class="slide" data-title="Video Display Devices">
+      <h2>Video Display <span class="accent">Devices</span></h2>
+      <p class="subhead">The monitor is the primary output device of a graphics system</p>
+      <p>Most traditional monitors use the <b>Cathode Ray Tube (CRT)</b> design, while
+        modern displays use flat panel technologies. In all of them the picture must be
+        <b>refreshed</b> repeatedly because the glowing phosphor or the pixel state fades.</p>
+      <div class="stats">
+        <div class="stat"><div class="big">60 Hz+</div><div class="lab">Typical refresh rate to avoid flicker</div></div>
+        <div class="stat"><div class="big">Persistence</div><div class="lab">How long phosphor keeps glowing</div></div>
+        <div class="stat"><div class="big">Resolution</div><div class="lab">Number of addressable pixels</div></div>
+        <div class="stat"><div class="big">Aspect ratio</div><div class="lab">Horizontal to vertical pixel ratio</div></div>
+      </div>
+      <div class="callout"><span class="lbl">Refresh rate</span>
+        The number of times per second the whole picture is redrawn. If it is too low the
+        image appears to flicker, so 60 Hz or higher is used.</div>
+    </section>
+
+    <!-- 5: CRT working -->
+    <section class="slide" data-title="CRT Working">
+      <h2>The <span class="accent">Cathode Ray Tube (CRT)</span></h2>
+      <p class="subhead">A beam of electrons draws light on a phosphor coated screen</p>
+      <div class="figure">
+        <svg viewBox="0 0 640 200" width="640" role="img" aria-label="CRT internal structure">
+          <!-- tube body -->
+          <path d="M20 90 L20 110 L120 130 L120 70 Z" class="s-surface s-border" stroke-width="1.5"/>
+          <rect x="118" y="55" width="360" height="90" rx="6" class="s-surface s-border" stroke-width="1.5"/>
+          <!-- screen -->
+          <path d="M478 45 Q520 100 478 155 L500 155 Q540 100 500 45 Z" class="s-fill-accent" opacity="0.85"/>
+          <!-- electron gun -->
+          <circle cx="55" cy="100" r="10" class="s-fill-accent"/>
+          <text x="30" y="150" class="s-dim" font-size="12">Electron gun</text>
+          <!-- deflection plates -->
+          <rect x="180" y="60" width="40" height="8" class="s-fill-accent" opacity="0.6"/>
+          <rect x="180" y="132" width="40" height="8" class="s-fill-accent" opacity="0.6"/>
+          <text x="165" y="180" class="s-dim" font-size="12">Deflection</text>
+          <!-- beam -->
+          <line x1="65" y1="100" x2="480" y2="100" class="s-stroke-accent" stroke-width="2" stroke-dasharray="5 4"/>
+          <text x="360" y="90" class="s-dim" font-size="12">Electron beam</text>
+          <text x="505" y="185" class="s-dim" font-size="12">Phosphor screen glows</text>
+        </svg>
+        <div class="cap">Heated cathode emits electrons, which are focused, deflected and strike the phosphor.</div>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="sn">1</div><div class="sc">A <b>heated cathode</b> (the electron gun) emits a stream of electrons.</div></div>
+        <div class="step"><div class="sn">2</div><div class="sc"><b>Focusing</b> systems squeeze the beam into a tiny spot.</div></div>
+        <div class="step"><div class="sn">3</div><div class="sc"><b>Deflection</b> (magnetic or electric) aims the beam at any screen position.</div></div>
+        <div class="step"><div class="sn">4</div><div class="sc">The beam hits the <b>phosphor</b>, which glows. The <b>control grid</b> voltage sets the brightness.</div></div>
+      </div>
+      <div class="figure">
+        <span class="src-badge">Reference image</span>
+        <img class="src-img" src="../images/crt-diagram.svg" alt="Labelled diagram of a cathode ray tube showing electron gun, deflection coils and phosphor screen" loading="lazy" />
+        <div class="attrib">Cathode ray tube diagram. Source: Interiot / Theresa Knott,
+          <a href="https://commons.wikimedia.org/wiki/File:Cathode_ray_tube_diagram-en.svg" target="_blank" rel="noopener">Wikimedia Commons</a>,
+          <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>.</div>
+      </div>
+    </section>
+
+    <!-- 6: Raster scan -->
+    <section class="slide" data-title="Raster-Scan Systems">
+      <h2>Raster Scan <span class="accent">Systems</span></h2>
+      <p class="subhead">The most common technique: the screen is a matrix of pixels</p>
+      <div class="two-col">
+        <div>
+          <p>The electron beam sweeps the screen <b>one horizontal row at a time</b>, from
+            top to bottom. Each row is a <b>scan line</b>. The picture is stored in the
+            <b>frame buffer</b>, where every pixel has a stored intensity or colour.</p>
+          <ul>
+            <li><b>Bitmap</b>: one bit per pixel, black and white.</li>
+            <li><b>Pixmap</b>: multiple bits per pixel for colour.</li>
+            <li><b>Horizontal retrace</b>: beam jumps back to the left after each line.</li>
+            <li><b>Vertical retrace</b>: beam jumps to the top after each full frame.</li>
+            <li><b>Interlacing</b>: refresh odd lines, then even lines, to reduce flicker.</li>
+          </ul>
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 240 170" width="240" role="img" aria-label="Raster scan pattern">
+            <rect x="10" y="10" width="220" height="150" rx="6" class="s-surface s-border" stroke-width="1.5"/>
+            <!-- scan lines -->
+            <g class="s-stroke-accent" stroke-width="2">
+              <line x1="20" y1="30" x2="220" y2="30"/>
+              <line x1="20" y1="55" x2="220" y2="55"/>
+              <line x1="20" y1="80" x2="220" y2="80"/>
+              <line x1="20" y1="105" x2="220" y2="105"/>
+              <line x1="20" y1="130" x2="220" y2="130"/>
+            </g>
+            <!-- retrace arrows -->
+            <g stroke="#7c86b5" stroke-width="1" stroke-dasharray="3 3">
+              <line x1="220" y1="30" x2="20" y2="55"/>
+              <line x1="220" y1="55" x2="20" y2="80"/>
+            </g>
+            <text x="60" y="16" class="s-dim" font-size="11">Row by row, top to bottom</text>
+          </svg>
+          <div class="cap">Solid lines: beam drawing. Dotted: horizontal retrace.</div>
+        </div>
+      </div>
+      <div class="callout good"><span class="lbl">Colour depth</span>
+        Bits per pixel decide the number of colours: 8 bits gives 256 colours, 24 bits
+        gives true colour (about 16.7 million).</div>
+      <div class="demo">
+        <div class="demo-head"><span class="dot-live"></span><span class="lbl">Live demo · anime.js</span></div>
+        <div data-demo="raster-scan"></div>
+        <div class="cap">Watch the electron beam sweep the pixel grid one row at a time, then retrace to the top.</div>
+      </div>
+    </section>
+
+    <!-- 7: Random scan -->
+    <section class="slide" data-title="Random-Scan Displays">
+      <h2>Random Scan <span class="accent">(Vector) Displays</span></h2>
+      <p class="subhead">The beam draws only the lines that make up the picture</p>
+      <div class="two-col">
+        <div>
+          <p>Also called <b>vector, stroke writing</b> or <b>calligraphic</b> displays. The
+            picture is stored as a set of line drawing commands in a <b>display list</b>
+            (refresh display file), and the beam traces those lines directly.</p>
+          <ul>
+            <li>Refresh rate depends on the <b>number of lines</b> to draw.</li>
+            <li>Produces very smooth, high quality <b>line drawings</b>.</li>
+            <li>Cannot easily show shaded, filled or photographic images.</li>
+          </ul>
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 240 170" width="240" role="img" aria-label="Random scan drawing a star">
+            <rect x="10" y="10" width="220" height="150" rx="6" class="s-surface s-border" stroke-width="1.5"/>
+            <polygon points="120,30 140,90 205,90 152,125 172,150 120,115 68,150 88,125 35,90 100,90"
+                     fill="none" class="s-stroke-accent" stroke-width="2.5" stroke-linejoin="round"/>
+          </svg>
+          <div class="cap">The beam follows the shape outline, not a pixel grid.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8: Raster vs Random comparison -->
+    <section class="slide" data-title="Raster vs Random Scan">
+      <h2>Raster vs <span class="accent">Random Scan</span></h2>
+      <p class="subhead">Two very different ways to build a picture</p>
+      <div class="vs-split">
+        <div class="side">
+          <h3>Raster Scan</h3>
+          <ul>
+            <li>Picture is a matrix of pixels</li>
+            <li>Stored in a frame buffer</li>
+            <li>Great for shaded, realistic scenes</li>
+            <li>Lines can look jagged (staircase effect)</li>
+            <li>Used in almost all modern displays</li>
+          </ul>
+        </div>
+        <div class="vs-mid"><div class="vs-badge">VS</div></div>
+        <div class="side">
+          <h3>Random Scan</h3>
+          <ul>
+            <li>Picture is a set of line segments</li>
+            <li>Stored in a display list</li>
+            <li>Great for smooth line art</li>
+            <li>Cannot show filled or photo images well</li>
+            <li>Mostly obsolete today</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9: Colour CRT -->
+    <section class="slide" data-title="Colour CRT Monitors">
+      <h2>Colour CRT <span class="accent">Monitors</span></h2>
+      <p class="subhead">Producing colour by combining light from phosphors</p>
+      <div class="two-col">
+        <div class="card">
+          <h3>Beam Penetration</h3>
+          <ul>
+            <li>Used with <b>random scan</b> monitors.</li>
+            <li>Two phosphor layers: red and green.</li>
+            <li>Beam speed and voltage decide how deep it penetrates.</li>
+            <li>Only <b>four colours</b>: red, green, orange, yellow.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Shadow Mask</h3>
+          <ul>
+            <li>Used with <b>raster scan</b>; produces millions of colours.</li>
+            <li>Each pixel is a triad of <b>red, green and blue</b> phosphor dots.</li>
+            <li>Three electron guns, one per colour.</li>
+            <li>A perforated <b>shadow mask</b> ensures each beam hits only its own dot.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="figure">
+        <svg viewBox="0 0 320 90" width="320" role="img" aria-label="RGB phosphor triad">
+          <circle cx="70" cy="45" r="26" fill="#ff5a5a"/>
+          <circle cx="100" cy="45" r="26" fill="#4ade80" opacity="0.85"/>
+          <circle cx="85" cy="20" r="26" fill="#5b8cff" opacity="0.85"/>
+          <text x="150" y="42" class="s-text" font-size="14">Overlapping R, G, B light</text>
+          <text x="150" y="62" class="s-dim" font-size="12">combines into any colour (RGB model).</text>
+        </svg>
+        <div class="cap">Full red plus green plus blue gives white; varying intensities give every colour.</div>
+      </div>
+      <div class="figure">
+        <span class="src-badge">Real photo · 40x magnification</span>
+        <img class="src-img" src="../images/shadow-mask.jpg" alt="Close-up photograph of a CRT shadow mask showing the red, green and blue phosphor dot matrix" loading="lazy" />
+        <div class="attrib">Shadow mask of a 15 inch CRT under about 40x magnification, showing the RGB phosphor matrix.
+          Source: Selcuk Oral (Drumex),
+          <a href="https://commons.wikimedia.org/wiki/File:Shadow_mask_closeup_rgb_matrix.jpg" target="_blank" rel="noopener">Wikimedia Commons</a>,
+          <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>.</div>
+      </div>
+    </section>
+
+    <!-- 10: Flat panel -->
+    <section class="slide" data-title="Flat-Panel Displays">
+      <h2>Flat Panel <span class="accent">Displays</span></h2>
+      <p class="subhead">Thinner, lighter and lower power than the CRT</p>
+      <div class="two-col">
+        <div class="card tint">
+          <h3>Emissive</h3>
+          <p>Convert electrical energy directly into light.</p>
+          <div class="tiles" style="grid-template-columns:1fr">
+            <div class="tile"><div class="ic">🟣</div><div class="tx"><h4>Plasma panels</h4><p>Gas discharge between glass plates.</p></div></div>
+            <div class="tile"><div class="ic">✨</div><div class="tx"><h4>Electroluminescent</h4><p>Thin film that glows under voltage.</p></div></div>
+            <div class="tile"><div class="ic">🔴</div><div class="tx"><h4>LED</h4><p>Light emitting diodes.</p></div></div>
+          </div>
+        </div>
+        <div class="card tint">
+          <h3>Non Emissive</h3>
+          <p>Use optical effects to turn ambient light or a backlight into a picture.</p>
+          <div class="tiles" style="grid-template-columns:1fr">
+            <div class="tile"><div class="ic">💧</div><div class="tx"><h4>LCD</h4><p>Liquid Crystal Displays, the dominant non emissive type.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11: LCD -->
+    <section class="slide" data-title="Liquid-Crystal Displays">
+      <h2>Liquid Crystal <span class="accent">Displays (LCD)</span></h2>
+      <p class="subhead">Light is passed or blocked by twisting crystals</p>
+      <div class="two-col">
+        <div>
+          <div class="figure">
+            <svg viewBox="0 0 360 120" width="360" role="img" aria-label="LCD layers">
+              <g font-size="11" text-anchor="middle">
+                <rect x="10"  y="20" width="34" height="80" class="s-surface s-border" stroke-width="1"/><text x="27" y="112" class="s-dim">Back light</text>
+                <rect x="54"  y="20" width="28" height="80" fill="#5b8cff" opacity="0.4"/><text x="68" y="112" class="s-dim">Polarizer</text>
+                <rect x="92"  y="20" width="34" height="80" class="s-surface s-border" stroke-width="1"/><text x="109" y="112" class="s-dim">Glass</text>
+                <rect x="136" y="20" width="44" height="80" fill="#34e0c4" opacity="0.4"/><text x="158" y="112" class="s-dim">Crystals</text>
+                <rect x="190" y="20" width="34" height="80" class="s-surface s-border" stroke-width="1"/><text x="207" y="112" class="s-dim">Glass</text>
+                <rect x="234" y="20" width="28" height="80" fill="#5b8cff" opacity="0.4"/><text x="248" y="112" class="s-dim">Polarizer</text>
+                <line x1="272" y1="60" x2="340" y2="60" class="s-stroke-accent" stroke-width="2" marker-end="url(#a1)"/>
+                <text x="315" y="52" class="s-dim">Light out</text>
+              </g>
+              <defs><marker id="a1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="s-fill-accent"/></marker></defs>
+            </svg>
+            <div class="cap">Voltage twists the crystals to pass or block polarized light.</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Passive vs Active matrix</h3>
+          <ul>
+            <li><b>Passive matrix</b>: a grid of conductors addresses pixels by row and column.</li>
+            <li><b>Active matrix (TFT)</b>: a thin film transistor at every pixel gives sharper, faster images with better contrast.</li>
+          </ul>
+          <div class="callout"><span class="lbl">Non emissive</span>
+            An LCD makes no light of its own, so it needs a backlight, today usually LEDs.</div>
+        </div>
+      </div>
+      <div class="figure">
+        <span class="src-badge">Reference image</span>
+        <img class="src-img" src="../images/lcd-layers.svg" alt="Exploded diagram of the layers of a twisted nematic liquid crystal display" loading="lazy" style="max-height:40vh" />
+        <div class="attrib">Layers of a reflective twisted nematic LCD: polarizers, glass with ITO electrodes, twisted crystals, reflector.
+          Source: Ed g2s,
+          <a href="https://commons.wikimedia.org/wiki/File:LCD_layers.svg" target="_blank" rel="noopener">Wikimedia Commons</a>,
+          <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>.</div>
+      </div>
+      <div class="demo">
+        <div class="demo-head"><span class="dot-live"></span><span class="lbl">Live demo · anime.js</span></div>
+        <div data-demo="lcd"></div>
+        <div class="cap">Applying voltage twists the crystals so they block the backlight and the pixels turn dark.</div>
+      </div>
+    </section>
+
+    <!-- 12: Workstations & viewing -->
+    <section class="slide" data-title="Workstations & Viewing Systems">
+      <h2>Graphics Workstations and <span class="accent">Viewing Systems</span></h2>
+      <p class="subhead">Complete systems for professional graphics work</p>
+      <div class="tiles">
+        <div class="tile"><div class="ic">🖥️</div><div class="tx"><h4>High resolution</h4><p>Large screens, often 2560 x 2048 or higher, sometimes multiple monitors.</p></div></div>
+        <div class="tile"><div class="ic">⚡</div><div class="tx"><h4>Fast GPUs</h4><p>Powerful graphics processors for real time rendering.</p></div></div>
+        <div class="tile"><div class="ic">👓</div><div class="tx"><h4>Stereoscopic</h4><p>Separate left and right eye views create a sense of depth.</p></div></div>
+        <div class="tile"><div class="ic">🕶️</div><div class="tx"><h4>Virtual reality</h4><p>Head mounted displays with head tracking immerse the user in a scene.</p></div></div>
+      </div>
+      <div class="callout"><span class="lbl">Used in</span>
+        CAD engineering, animation studios, scientific visualization, simulation and
+        training environments.</div>
+    </section>
+
+    <!-- 13: Software Part B intro -->
+    <section class="slide title-slide" data-title="Part B: Graphics Software">
+      <span class="kicker">Part B · Chapter 2</span>
+      <h1>Computer Graphics<br />Software</h1>
+      <p class="lead">From coordinate systems and graphics functions to the OpenGL API,
+        GLUT window management, a complete program, and error handling.</p>
+    </section>
+
+    <!-- 14: Software categories -->
+    <section class="slide" data-title="Software Categories">
+      <h2>Graphics Software <span class="accent">Categories</span></h2>
+      <div class="two-col">
+        <div class="card tint">
+          <h3>General programming packages</h3>
+          <p>A library of graphics functions callable from a language such as C, C++ or
+            Java. They provide primitives, attributes, transformations, viewing and input.</p>
+          <p class="pill">Example: OpenGL</p>
+        </div>
+        <div class="card tint">
+          <h3>Special purpose applications</h3>
+          <p>Ready made packages designed for non programmers to create pictures or models
+            in a specific domain.</p>
+          <p class="pill">Examples: CAD, paint and draw apps, medical imaging</p>
+        </div>
+      </div>
+      <div class="callout"><span class="lbl">Standards make software portable</span>
+        Older standards were GKS and PHIGS. Today <b>OpenGL</b> is the cross platform
+        standard that runs the same code on many systems.</div>
+    </section>
+
+    <!-- 15: Coordinate representations -->
+    <section class="slide" data-title="Coordinate Representations">
+      <h2>Coordinate <span class="accent">Representations</span></h2>
+      <p class="subhead">A scene passes through several coordinate systems before it reaches the screen</p>
+      <div class="figure">
+        <svg viewBox="0 0 640 90" width="640" role="img" aria-label="Coordinate pipeline">
+          <g font-size="12" text-anchor="middle">
+            <rect x="10"  y="25" width="120" height="40" rx="8" class="s-surface s-border" stroke-width="1.5"/><text x="70" y="50" class="s-text">Modelling</text>
+            <rect x="170" y="25" width="120" height="40" rx="8" class="s-surface s-border" stroke-width="1.5"/><text x="230" y="50" class="s-text">World</text>
+            <rect x="330" y="25" width="150" height="40" rx="8" class="s-surface s-border" stroke-width="1.5"/><text x="405" y="50" class="s-text">Viewing / Normalized</text>
+            <rect x="520" y="25" width="110" height="40" rx="8" class="s-fill-accent"/><text x="575" y="50" fill="#08122b" font-weight="700">Device</text>
+          </g>
+          <g class="s-stroke-accent" stroke-width="2" marker-end="url(#ar)">
+            <line x1="130" y1="45" x2="168" y2="45"/>
+            <line x1="290" y1="45" x2="328" y2="45"/>
+            <line x1="480" y1="45" x2="518" y2="45"/>
+          </g>
+          <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" class="s-fill-accent"/></marker></defs>
+        </svg>
+        <div class="cap">Objects move from their own local space to the pixels on screen.</div>
+      </div>
+      <ul>
+        <li><b>Modelling (local) coordinates</b>: each object is defined in its own frame.</li>
+        <li><b>World coordinates</b>: all objects are placed in one common scene.</li>
+        <li><b>Normalized coordinates</b>: mapped to a standard 0 to 1 range for portability.</li>
+        <li><b>Device (screen) coordinates</b>: final integer pixel positions on the display.</li>
+      </ul>
+    </section>
+
+    <!-- 16: Graphics functions -->
+    <section class="slide" data-title="Graphics Functions">
+      <h2>Graphics <span class="accent">Functions</span></h2>
+      <p class="subhead">A general package groups its functions into these categories</p>
+      <div class="tiles">
+        <div class="tile"><div class="ic">📍</div><div class="tx"><h4>Primitives</h4><p>Points, lines, polygons and text, the basic building blocks.</p></div></div>
+        <div class="tile"><div class="ic">🎨</div><div class="tx"><h4>Attributes</h4><p>Colour, line style, fill pattern and text font.</p></div></div>
+        <div class="tile"><div class="ic">🔄</div><div class="tx"><h4>Transformations</h4><p>Translate, rotate and scale objects.</p></div></div>
+        <div class="tile"><div class="ic">🔭</div><div class="tx"><h4>Viewing</h4><p>Choose what part of the scene is shown and where.</p></div></div>
+        <div class="tile"><div class="ic">🖱️</div><div class="tx"><h4>Input</h4><p>Handle mouse, keyboard and other devices.</p></div></div>
+        <div class="tile"><div class="ic">⚙️</div><div class="tx"><h4>Control</h4><p>Initialize, manage errors and talk to the system.</p></div></div>
+      </div>
+    </section>
+
+    <!-- 17: OpenGL intro -->
+    <section class="slide" data-title="Introduction to OpenGL">
+      <h2>Introduction to <span class="accent">OpenGL</span></h2>
+      <p class="subhead">A cross platform, hardware independent graphics API</p>
+      <div class="two-col">
+        <div>
+          <ul>
+            <li><b>OpenGL</b> means Open Graphics Library, a device independent API.</li>
+            <li>Provides a few hundred functions for 2D and 3D graphics.</li>
+            <li>Works as a <b>state machine</b>: you set states such as colour, then draw.</li>
+            <li>Functions begin with <code class="inline">gl</code>; constants begin with <code class="inline">GL_</code>.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Naming convention</h3>
+          <p>A suffix tells you the <b>argument count</b> and <b>data type</b>.</p>
+          <pre><code><span class="tok-fn">glColor3f</span>(...)   <span class="tok-com">// 3 args, float</span>
+<span class="tok-fn">glVertex2i</span>(...)  <span class="tok-com">// 2 args, integer</span>
+<span class="tok-fn">glVertex3fv</span>(...) <span class="tok-com">// 3 float, vector</span></code></pre>
+          <p>Types: <code class="inline">i</code> integer, <code class="inline">f</code>
+            float, <code class="inline">d</code> double, <code class="inline">v</code> array.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18: Related libraries -->
+    <section class="slide" data-title="Related Libraries">
+      <h2>Related <span class="accent">Libraries</span></h2>
+      <p class="subhead">OpenGL is usually paired with helper libraries</p>
+      <table class="tbl">
+        <tr><th>Library</th><th>Prefix</th><th>Purpose</th></tr>
+        <tr><td>OpenGL core (GL)</td><td><code class="inline">gl</code></td><td>Core drawing and state functions</td></tr>
+        <tr><td>OpenGL Utility (GLU)</td><td><code class="inline">glu</code></td><td>Higher level routines: quadrics, curves, viewing setup</td></tr>
+        <tr><td>OpenGL Utility Toolkit (GLUT)</td><td><code class="inline">glut</code></td><td>Windowing, menus and input, platform independent</td></tr>
+        <tr><td>System glue (GLX, WGL)</td><td>varies</td><td>Connect OpenGL to the operating system window</td></tr>
+      </table>
+      <div class="callout"><span class="lbl">Why GLUT?</span>
+        Core OpenGL knows nothing about windows or input. GLUT creates the display window,
+        reads the mouse and keyboard, and runs the event loop in a portable way.</div>
+    </section>
+
+    <!-- 19: GLUT window management -->
+    <section class="slide" data-title="GLUT Window Management">
+      <h2>Display Window Management with <span class="accent">GLUT</span></h2>
+      <p class="subhead">The standard sequence to open a window and begin drawing</p>
+      <pre><code><span class="tok-fn">glutInit</span>(&amp;argc, argv);                    <span class="tok-com">// initialize GLUT</span>
+<span class="tok-fn">glutInitDisplayMode</span>(GLUT_SINGLE | GLUT_RGB); <span class="tok-com">// buffer and colour mode</span>
+<span class="tok-fn">glutInitWindowPosition</span>(<span class="tok-num">50</span>, <span class="tok-num">100</span>);         <span class="tok-com">// top left corner</span>
+<span class="tok-fn">glutInitWindowSize</span>(<span class="tok-num">400</span>, <span class="tok-num">300</span>);            <span class="tok-com">// width, height</span>
+<span class="tok-fn">glutCreateWindow</span>(<span class="tok-str">"My First OpenGL Program"</span>);    <span class="tok-com">// title bar text</span></code></pre>
+      <ul>
+        <li><code class="inline">GLUT_SINGLE</code> uses one frame buffer;
+          <code class="inline">GLUT_DOUBLE</code> uses double buffering for smooth animation.</li>
+        <li><code class="inline">GLUT_RGB</code> selects RGB colour mode.</li>
+        <li><code class="inline">glutDisplayFunc(fn)</code> registers the callback that draws the scene.</li>
+        <li><code class="inline">glutMainLoop()</code> starts the event loop and does not return.</li>
+      </ul>
+    </section>
+
+    <!-- 20: Complete program -->
+    <section class="slide" data-title="A Complete OpenGL Program">
+      <h2>A Complete <span class="accent">OpenGL Program</span></h2>
+      <p class="subhead">Draw a line segment, the classic first program</p>
+      <pre><code><span class="tok-key">#include</span> &lt;GL/glut.h&gt;
+
+<span class="tok-key">void</span> <span class="tok-fn">init</span>(<span class="tok-key">void</span>) {
+    <span class="tok-fn">glClearColor</span>(<span class="tok-num">1.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">0.0</span>);   <span class="tok-com">// white background</span>
+    <span class="tok-fn">glMatrixMode</span>(GL_PROJECTION);
+    <span class="tok-fn">gluOrtho2D</span>(<span class="tok-num">0.0</span>, <span class="tok-num">200.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">150.0</span>); <span class="tok-com">// 2D world window</span>
+}
+
+<span class="tok-key">void</span> <span class="tok-fn">lineSegment</span>(<span class="tok-key">void</span>) {
+    <span class="tok-fn">glClear</span>(GL_COLOR_BUFFER_BIT);            <span class="tok-com">// clear the window</span>
+    <span class="tok-fn">glColor3f</span>(<span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>);            <span class="tok-com">// blue</span>
+    <span class="tok-fn">glBegin</span>(GL_LINES);
+        <span class="tok-fn">glVertex2i</span>(<span class="tok-num">180</span>, <span class="tok-num">15</span>);
+        <span class="tok-fn">glVertex2i</span>(<span class="tok-num">10</span>, <span class="tok-num">145</span>);
+    <span class="tok-fn">glEnd</span>();
+    <span class="tok-fn">glFlush</span>();                              <span class="tok-com">// send to display</span>
+}
+
+<span class="tok-key">int</span> <span class="tok-fn">main</span>(<span class="tok-key">int</span> argc, <span class="tok-key">char</span>** argv) {
+    <span class="tok-fn">glutInit</span>(&amp;argc, argv);
+    <span class="tok-fn">glutInitDisplayMode</span>(GLUT_SINGLE | GLUT_RGB);
+    <span class="tok-fn">glutInitWindowPosition</span>(<span class="tok-num">50</span>, <span class="tok-num">100</span>);
+    <span class="tok-fn">glutInitWindowSize</span>(<span class="tok-num">400</span>, <span class="tok-num">300</span>);
+    <span class="tok-fn">glutCreateWindow</span>(<span class="tok-str">"Line Segment"</span>);
+    <span class="tok-fn">init</span>();
+    <span class="tok-fn">glutDisplayFunc</span>(lineSegment);
+    <span class="tok-fn">glutMainLoop</span>();
+    <span class="tok-key">return</span> <span class="tok-num">0</span>;
+}</code></pre>
+    </section>
+
+    <!-- 21: Error handling -->
+    <section class="slide" data-title="Error Handling in OpenGL">
+      <h2>Error Handling in <span class="accent">OpenGL</span></h2>
+      <p class="subhead">OpenGL records errors in a flag you can query at any time</p>
+      <div class="two-col">
+        <div>
+          <p>When a function is called with invalid arguments or in an invalid state, an
+            <b>error flag</b> is set. You read it with <code class="inline">glGetError()</code>
+            and turn the code into text with <code class="inline">gluErrorString()</code>.</p>
+          <pre><code>GLenum code = <span class="tok-fn">glGetError</span>();
+<span class="tok-key">if</span> (code != GL_NO_ERROR)
+    printf(<span class="tok-str">"%s"</span>, <span class="tok-fn">gluErrorString</span>(code));</code></pre>
+        </div>
+        <div class="card">
+          <h3>Common error codes</h3>
+          <table class="tbl">
+            <tr><th>Code</th><th>Meaning</th></tr>
+            <tr><td>GL_NO_ERROR</td><td>No error</td></tr>
+            <tr><td>GL_INVALID_ENUM</td><td>Bad enum argument</td></tr>
+            <tr><td>GL_INVALID_VALUE</td><td>Numeric argument out of range</td></tr>
+            <tr><td>GL_INVALID_OPERATION</td><td>Operation not allowed in this state</td></tr>
+            <tr><td>GL_OUT_OF_MEMORY</td><td>Not enough memory</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 22: Summary -->
+    <section class="slide" data-title="Summary">
+      <h2>Module 1 <span class="accent">Summary</span></h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Hardware</h3>
+          <ul>
+            <li>CRT: electron beam plus phosphor, needs refresh.</li>
+            <li>Raster uses a pixel matrix and frame buffer; random uses a line list.</li>
+            <li>Colour CRT: beam penetration and shadow mask (RGB).</li>
+            <li>Flat panels: emissive (plasma, LED) and non emissive (LCD).</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Software</h3>
+          <ul>
+            <li>Coordinate pipeline: modelling to world to device.</li>
+            <li>Function groups: primitives, attributes, transforms, viewing, input.</li>
+            <li>OpenGL plus GLU plus GLUT, using a state machine model.</li>
+            <li>Complete program structure and <code class="inline">glGetError</code>.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout good"><span class="lbl">Next up</span>
+        Module 2, Graphics Output Primitives and their Attributes, Chapters 3 and 4.</div>
+    </section>
+
+    <!-- Sources -->
+    <section class="slide" data-title="Sources & References">
+      <h2>Sources &amp; <span class="accent">References</span></h2>
+      <p class="subhead">Textbook chapters, official documentation and image credits for this module</p>
+      <div class="two-col">
+        <div class="card">
+          <h3>Primary reading</h3>
+          <ul>
+            <li>Hearn, Baker &amp; Carithers, <b>Computer Graphics with OpenGL</b>, 4th ed., Pearson, 2014, <b>Chapter 1</b> (A Survey of Computer Graphics) and <b>Chapter 2</b> (Overview of Graphics Systems).</li>
+            <li>Official API docs:
+              <a href="https://registry.khronos.org/OpenGL/" target="_blank" rel="noopener">Khronos OpenGL Registry</a>,
+              <a href="https://www.opengl.org/sdk/docs/" target="_blank" rel="noopener">OpenGL / GLU reference pages</a>.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Image credits</h3>
+          <ul>
+            <li>CRT diagram: Interiot / Theresa Knott,
+              <a href="https://commons.wikimedia.org/wiki/File:Cathode_ray_tube_diagram-en.svg" target="_blank" rel="noopener">Wikimedia Commons</a>, CC BY-SA 3.0.</li>
+            <li>Shadow mask close-up: Selcuk Oral (Drumex),
+              <a href="https://commons.wikimedia.org/wiki/File:Shadow_mask_closeup_rgb_matrix.jpg" target="_blank" rel="noopener">Wikimedia Commons</a>, CC BY-SA 3.0.</li>
+            <li>LCD layers: Ed g2s,
+              <a href="https://commons.wikimedia.org/wiki/File:LCD_layers.svg" target="_blank" rel="noopener">Wikimedia Commons</a>, CC BY-SA 3.0.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout"><span class="lbl">Lecturer</span> Mr. Bharath · B24CS53 Computer Graphics.</div>
+    </section>
+
+  </div>
+
+  <div class="overview">
+    <button class="ov-close" data-ov-close>✕ Close</button>
+    <h3>Module 1 · Slide Overview</h3>
+    <div class="ov-grid"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" data-prev>← Prev</button>
+    <div class="center">
+      <button class="btn mini" data-overview title="Overview (O)">▦</button>
+      <span class="counter" data-counter>1 / 1</span>
+      <button class="btn mini" data-fullscreen title="Fullscreen (F)">⛶</button>
+      <button class="btn mini" data-help title="Keyboard help (H)">?</button>
+    </div>
+    <button class="btn" data-next>Next →</button>
+  </div>
+
+  <div class="help-overlay" aria-hidden="true">
+    <div class="help-card">
+      <h3>Keyboard &amp; Controls</h3>
+      <div class="help-row"><span>Next slide</span><span><span class="kbd">→</span> <span class="kbd">Space</span></span></div>
+      <div class="help-row"><span>Previous slide</span><span><span class="kbd">←</span></span></div>
+      <div class="help-row"><span>First / last slide</span><span><span class="kbd">Home</span> <span class="kbd">End</span></span></div>
+      <div class="help-row"><span>Jump to slide N</span><span><span class="kbd">1</span> … <span class="kbd">9</span></span></div>
+      <div class="help-row"><span>Slide overview</span><span><span class="kbd">O</span></span></div>
+      <div class="help-row"><span>Fullscreen</span><span><span class="kbd">F</span></span></div>
+      <div class="help-row"><span>Print / save as PDF</span><span><span class="kbd">P</span></span></div>
+      <div class="help-row"><span>This help</span><span><span class="kbd">H</span> <span class="kbd">?</span></span></div>
+      <button class="btn help-close" data-help-close>Close</button>
+    </div>
+  </div>
+
+  <script src="../js/deck.js"></script>
+  <script src="../js/visuals.js"></script>
+  <script src="../js/spotlight.js"></script>
+</body>
+</html>

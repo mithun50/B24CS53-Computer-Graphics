@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Module 3 · Algorithms &amp; 2D/3D Transformations · B24CS53</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="progress"></div>
+
+  <div class="topbar">
+    <div class="tb-left">
+      <a class="home-link" href="../index.html">← Home</a>
+      <span class="deck-name">Module 3 · Algorithms &amp; 2D/3D Transformations</span>
+    </div>
+    <div class="tb-right">
+      <span class="deck-name">B24CS53 · Ch 5, 6 &amp; 8</span>
+    </div>
+  </div>
+
+  <div class="deck" style="--deck-accent: var(--mod3)">
+
+    <!-- 1: Title -->
+    <section class="slide title-slide active" data-title="Title">
+      <span class="kicker">Module 3 · Textbook 1 · Chapters 5, 6 &amp; 8 · 8 Hours</span>
+      <h1>Algorithms &amp;<br />2D / 3D Transformations</h1>
+      <p class="lead">How lines are drawn pixel by pixel, and how objects are moved, turned
+        and resized using geometric transformations in two and three dimensions, both by
+        matrix mathematics and with OpenGL functions.</p>
+      <div class="tags">
+        <span class="tag">DDA &amp; Bresenham</span>
+        <span class="tag">2D Transforms</span>
+        <span class="tag">Homogeneous Coordinates</span>
+        <span class="tag">3D Transforms</span>
+        <span class="tag">OpenGL Functions</span>
+      </div>
+    </section>
+
+    <!-- 2: Roadmap -->
+    <section class="slide" data-title="Module Roadmap">
+      <h2>Module <span class="accent">Roadmap</span></h2>
+      <p class="subhead">From drawing straight lines to moving objects through space</p>
+      <div class="three-col">
+        <div class="card">
+          <h3>Part A · Line Algorithms</h3>
+          <ul>
+            <li>DDA line algorithm</li>
+            <li>Bresenham line algorithm</li>
+            <li>DDA vs Bresenham comparison</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Part B · 2D Transforms</h3>
+          <ul>
+            <li>Translation, rotation, scaling</li>
+            <li>Matrices and homogeneous coordinates</li>
+            <li>Composite transformations</li>
+            <li>Reflection and shear</li>
+            <li>Raster and OpenGL methods</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Part C · 3D Transforms</h3>
+          <ul>
+            <li>3D translation, rotation, scaling</li>
+            <li>Composite 3D transformations</li>
+            <li>3D reflection and shear</li>
+            <li>OpenGL 3D functions</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3: Line drawing intro -->
+    <section class="slide" data-title="Line Drawing Basics">
+      <h2>Line Drawing <span class="accent">Basics</span></h2>
+      <p class="subhead">A straight line on a raster screen is only an approximation</p>
+      <p>A display is a grid of pixels, so a mathematically thin line has to be drawn as a
+        set of the <b>nearest whole pixels</b>. A good line algorithm chooses those pixels
+        quickly and keeps the line looking straight and evenly bright. The line equation is
+        <code class="inline">y = m·x + b</code>, where <code class="inline">m</code> is the
+        slope and <code class="inline">b</code> is the y intercept.</p>
+      <div class="tiles">
+        <div class="tile"><div class="ic">📏</div><div class="tx"><h4>Straight</h4><p>Pixels must follow the true line closely with no waviness.</p></div></div>
+        <div class="tile"><div class="ic">💡</div><div class="tx"><h4>Even brightness</h4><p>The line should look the same thickness at any angle.</p></div></div>
+        <div class="tile"><div class="ic">⚡</div><div class="tx"><h4>Fast</h4><p>Millions of pixels are set per frame, so the inner loop must be cheap.</p></div></div>
+        <div class="tile"><div class="ic">🪜</div><div class="tx"><h4>Aliasing</h4><p>The jagged staircase effect that all raster lines suffer from.</p></div></div>
+      </div>
+      <div class="callout"><span class="lbl">The core problem</span>
+        For each step along the longer axis, decide which pixel on the shorter axis is
+        closest to the true line, using only fast arithmetic.</div>
+    </section>
+
+    <!-- 4: DDA algorithm -->
+    <section class="slide" data-title="DDA Algorithm">
+      <h2>DDA <span class="accent">Line Algorithm</span></h2>
+      <p class="subhead">Digital Differential Analyzer: step along the line in equal increments</p>
+      <div class="two-col">
+        <div>
+          <p>The DDA samples the line at unit steps along whichever axis changes fastest,
+            then rounds the other coordinate to the nearest pixel. If the slope is gentle
+            (<code class="inline">|m| &lt;= 1</code>) it steps in <code class="inline">x</code>;
+            if steep it steps in <code class="inline">y</code>.</p>
+          <ul>
+            <li>Gentle slope: <code class="inline">x = x + 1</code>, <code class="inline">y = y + m</code></li>
+            <li>Steep slope: <code class="inline">y = y + 1</code>, <code class="inline">x = x + 1/m</code></li>
+            <li>Each new coordinate is <b>rounded</b> before plotting.</li>
+          </ul>
+          <div class="callout warn"><span class="lbl">Drawback</span>
+            DDA uses floating point addition and a round at every step, which is slower and
+            can drift due to rounding error over long lines.</div>
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 240 200" width="240" role="img" aria-label="DDA pixels plotted along a line">
+            <!-- grid -->
+            <g class="s-border" stroke-width="1" fill="none">
+              <rect x="20" y="20" width="200" height="160"/>
+              <line x1="20"  y1="60"  x2="220" y2="60"/>
+              <line x1="20"  y1="100" x2="220" y2="100"/>
+              <line x1="20"  y1="140" x2="220" y2="140"/>
+              <line x1="60"  y1="20"  x2="60"  y2="180"/>
+              <line x1="100" y1="20"  x2="100" y2="180"/>
+              <line x1="140" y1="20"  x2="140" y2="180"/>
+              <line x1="180" y1="20"  x2="180" y2="180"/>
+            </g>
+            <!-- true line -->
+            <line x1="20" y1="180" x2="220" y2="20" class="s-stroke-accent" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <!-- plotted pixels -->
+            <g class="s-fill-accent">
+              <rect x="22"  y="162" width="16" height="16"/>
+              <rect x="42"  y="142" width="16" height="16"/>
+              <rect x="62"  y="122" width="16" height="16"/>
+              <rect x="82"  y="102" width="16" height="16"/>
+              <rect x="102" y="82"  width="16" height="16"/>
+              <rect x="122" y="62"  width="16" height="16"/>
+              <rect x="142" y="62"  width="16" height="16"/>
+              <rect x="162" y="42"  width="16" height="16"/>
+              <rect x="182" y="22"  width="16" height="16"/>
+            </g>
+          </svg>
+          <div class="cap">Dashed: true line. Filled: nearest pixels chosen by DDA.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5: DDA pseudocode -->
+    <section class="slide" data-title="DDA Pseudocode">
+      <h2>DDA <span class="accent">Pseudocode</span></h2>
+      <p class="subhead">The full step by step procedure</p>
+      <pre><code><span class="tok-fn">DDA_Line</span>(x0, y0, x1, y1):
+    dx = x1 - x0
+    dy = y1 - y0
+    <span class="tok-com">// choose the number of steps along the longer axis</span>
+    <span class="tok-key">if</span> abs(dx) &gt; abs(dy):
+        steps = abs(dx)
+    <span class="tok-key">else</span>:
+        steps = abs(dy)
+
+    xInc = dx / steps        <span class="tok-com">// fractional x increment</span>
+    yInc = dy / steps        <span class="tok-com">// fractional y increment</span>
+
+    x = x0
+    y = y0
+    <span class="tok-fn">plot</span>(round(x), round(y))
+
+    <span class="tok-key">for</span> k = <span class="tok-num">1</span> <span class="tok-key">to</span> steps:
+        x = x + xInc
+        y = y + yInc
+        <span class="tok-fn">plot</span>(round(x), round(y))</code></pre>
+      <div class="callout"><span class="lbl">Key idea</span>
+        Divide the total change by the number of steps once, then add the same small
+        increment each time. Only the rounding is done per pixel.</div>
+    </section>
+
+    <!-- 6: Bresenham algorithm -->
+    <section class="slide" data-title="Bresenham Algorithm">
+      <h2>Bresenham <span class="accent">Line Algorithm</span></h2>
+      <p class="subhead">Integer only decisions, no floating point</p>
+      <div class="two-col">
+        <div>
+          <p>Bresenham decides the next pixel using an <b>integer decision parameter</b>
+            <code class="inline">p</code>. At each step, only <code class="inline">y</code>
+            can stay the same or move up by one, and the sign of <code class="inline">p</code>
+            decides which. This uses only integer addition and comparison, so it is fast and
+            exact.</p>
+          <p>For a gentle slope (<code class="inline">0 &lt; m &lt; 1</code>) with
+            <code class="inline">dx = x1 - x0</code> and <code class="inline">dy = y1 - y0</code>:</p>
+          <ul>
+            <li>Initial: <code class="inline">p0 = 2·dy - dx</code></li>
+            <li>If <code class="inline">pk &lt; 0</code>: plot <code class="inline">(xk+1, yk)</code>, then <code class="inline">p = pk + 2·dy</code></li>
+            <li>If <code class="inline">pk &gt;= 0</code>: plot <code class="inline">(xk+1, yk+1)</code>, then <code class="inline">p = pk + 2·dy - 2·dx</code></li>
+          </ul>
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 240 200" width="240" role="img" aria-label="Bresenham pixel grid decision">
+            <g class="s-border" stroke-width="1" fill="none">
+              <rect x="20" y="20" width="200" height="160"/>
+              <line x1="20" y1="60"  x2="220" y2="60"/>
+              <line x1="20" y1="100" x2="220" y2="100"/>
+              <line x1="20" y1="140" x2="220" y2="140"/>
+              <line x1="60"  y1="20" x2="60"  y2="180"/>
+              <line x1="100" y1="20" x2="100" y2="180"/>
+              <line x1="140" y1="20" x2="140" y2="180"/>
+              <line x1="180" y1="20" x2="180" y2="180"/>
+            </g>
+            <line x1="20" y1="170" x2="220" y2="30" class="s-stroke-accent" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <g class="s-fill-accent">
+              <rect x="22"  y="152" width="16" height="16"/>
+              <rect x="42"  y="152" width="16" height="16"/>
+              <rect x="62"  y="132" width="16" height="16"/>
+              <rect x="82"  y="112" width="16" height="16"/>
+              <rect x="102" y="112" width="16" height="16"/>
+              <rect x="122" y="92"  width="16" height="16"/>
+              <rect x="142" y="72"  width="16" height="16"/>
+              <rect x="162" y="52"  width="16" height="16"/>
+              <rect x="182" y="32"  width="16" height="16"/>
+            </g>
+            <text x="60" y="16" class="s-dim" font-size="11">p decides: same row or step up</text>
+          </svg>
+          <div class="cap">At each column the sign of p picks the closer of two candidate pixels.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7: Bresenham pseudocode -->
+    <section class="slide" data-title="Bresenham Pseudocode">
+      <h2>Bresenham <span class="accent">Pseudocode</span></h2>
+      <p class="subhead">Gentle positive slope case, all integer arithmetic</p>
+      <pre><code><span class="tok-fn">Bresenham_Line</span>(x0, y0, x1, y1):
+    dx = abs(x1 - x0)
+    dy = abs(y1 - y0)
+    p  = <span class="tok-num">2</span>*dy - dx           <span class="tok-com">// initial decision parameter</span>
+    twoDy   = <span class="tok-num">2</span>*dy
+    twoDyDx = <span class="tok-num">2</span>*(dy - dx)
+
+    x = x0
+    y = y0
+    <span class="tok-fn">plot</span>(x, y)
+
+    <span class="tok-key">while</span> x &lt; x1:
+        x = x + <span class="tok-num">1</span>
+        <span class="tok-key">if</span> p &lt; <span class="tok-num">0</span>:
+            p = p + twoDy       <span class="tok-com">// keep same y</span>
+        <span class="tok-key">else</span>:
+            y = y + <span class="tok-num">1</span>           <span class="tok-com">// step up in y</span>
+            p = p + twoDyDx
+        <span class="tok-fn">plot</span>(x, y)</code></pre>
+      <div class="callout good"><span class="lbl">Why it is fast</span>
+        The inner loop uses only integer additions and one sign test per pixel. No
+        multiplication, division or rounding is needed after setup.</div>
+      <div class="demo">
+        <div class="demo-head"><span class="dot-live"></span><span class="lbl">Live demo · anime.js</span></div>
+        <div data-demo="bresenham"></div>
+        <div class="cap">Each pixel chosen by the decision parameter lights up in sequence along the line.</div>
+      </div>
+    </section>
+
+    <!-- 8: DDA vs Bresenham -->
+    <section class="slide" data-title="DDA vs Bresenham">
+      <h2>DDA vs <span class="accent">Bresenham</span></h2>
+      <p class="subhead">Two ways to rasterize a line, compared</p>
+      <div class="vs-split">
+        <div class="side">
+          <h3>DDA</h3>
+          <ul>
+            <li>Uses floating point arithmetic</li>
+            <li>Multiplication and division at setup</li>
+            <li>Rounds a real value each step</li>
+            <li>Rounding error can accumulate</li>
+            <li>Simpler to understand, slower to run</li>
+          </ul>
+        </div>
+        <div class="vs-mid"><div class="vs-badge">VS</div></div>
+        <div class="side">
+          <h3>Bresenham</h3>
+          <ul>
+            <li>Uses integer arithmetic only</li>
+            <li>Only additions in the inner loop</li>
+            <li>Exact pixel selection, no rounding</li>
+            <li>No error accumulation</li>
+            <li>More setup logic, much faster to run</li>
+          </ul>
+        </div>
+      </div>
+      <table class="tbl">
+        <tr><th>Aspect</th><th>DDA</th><th>Bresenham</th></tr>
+        <tr><td>Arithmetic</td><td>Floating point</td><td>Integer</td></tr>
+        <tr><td>Operations per step</td><td>Add plus round</td><td>Add plus compare</td></tr>
+        <tr><td>Speed</td><td>Slower</td><td>Faster</td></tr>
+        <tr><td>Accuracy</td><td>Can drift</td><td>Precise</td></tr>
+        <tr><td>Preferred</td><td>Teaching, simple cases</td><td>Real hardware and software</td></tr>
+      </table>
+    </section>
+
+    <!-- 9: Part B intro -->
+    <section class="slide title-slide" data-title="Part B: 2D Transformations">
+      <span class="kicker">Part B · Chapter 6</span>
+      <h1>2D Geometric<br />Transformations</h1>
+      <p class="lead">Changing the position, orientation and size of objects in the plane
+        using translation, rotation and scaling, expressed cleanly with matrices and
+        homogeneous coordinates.</p>
+    </section>
+
+    <!-- 10: Basic 2D transforms -->
+    <section class="slide" data-title="Basic 2D Transforms">
+      <h2>Basic 2D <span class="accent">Transformations</span></h2>
+      <p class="subhead">The three fundamental operations on points in the plane</p>
+      <div class="three-col">
+        <div class="card tint">
+          <h3>Translation</h3>
+          <p>Move a point by a distance <code class="inline">(tx, ty)</code>.</p>
+          <pre><code>x' = x + tx
+y' = y + ty</code></pre>
+        </div>
+        <div class="card tint">
+          <h3>Rotation</h3>
+          <p>Turn about the origin by angle <code class="inline">θ</code>.</p>
+          <pre><code>x' = x·cosθ - y·sinθ
+y' = x·sinθ + y·cosθ</code></pre>
+        </div>
+        <div class="card tint">
+          <h3>Scaling</h3>
+          <p>Resize about the origin by factors <code class="inline">(sx, sy)</code>.</p>
+          <pre><code>x' = x · sx
+y' = y · sy</code></pre>
+        </div>
+      </div>
+      <div class="figure">
+        <svg viewBox="0 0 560 170" width="560" role="img" aria-label="Shape before and after transforms">
+          <!-- original -->
+          <polygon points="40,130 100,130 70,80" fill="none" class="s-stroke-accent" stroke-width="2"/>
+          <text x="45" y="150" class="s-dim" font-size="12">Original</text>
+          <!-- translated -->
+          <polygon points="170,110 230,110 200,60" fill="none" class="s-stroke-accent" stroke-width="2" stroke-dasharray="4 3"/>
+          <text x="175" y="150" class="s-dim" font-size="12">Translated</text>
+          <!-- rotated -->
+          <polygon points="330,120 385,140 350,75" fill="none" class="s-stroke-accent" stroke-width="2" stroke-dasharray="4 3"/>
+          <text x="330" y="155" class="s-dim" font-size="12">Rotated</text>
+          <!-- scaled -->
+          <polygon points="470,140 560,140 515,60" fill="none" class="s-stroke-accent" stroke-width="2" stroke-dasharray="4 3"/>
+          <text x="480" y="158" class="s-dim" font-size="12">Scaled up</text>
+        </svg>
+        <div class="cap">A triangle transformed by translation, rotation and scaling.</div>
+      </div>
+      <div class="demo">
+        <div class="demo-head"><span class="dot-live"></span><span class="lbl">Interactive · anime.js</span></div>
+        <div data-demo="transform-2d"></div>
+        <div class="cap">Click the buttons to translate, rotate and scale the square about the origin.</div>
+      </div>
+    </section>
+
+    <!-- 11: Matrices and homogeneous -->
+    <section class="slide" data-title="Matrices & Homogeneous Coordinates">
+      <h2>Matrices and <span class="accent">Homogeneous Coordinates</span></h2>
+      <p class="subhead">One matrix form so every transform can be combined by multiplication</p>
+      <div class="two-col">
+        <div>
+          <p>Translation is an addition, while rotation and scaling are multiplications.
+            To treat them all the same way, a 2D point <code class="inline">(x, y)</code> is
+            written as a <b>homogeneous</b> triple <code class="inline">(x, y, 1)</code>, and
+            every transform becomes a <b>3x3 matrix</b>. Transforms then combine simply by
+            multiplying their matrices.</p>
+          <div class="callout"><span class="lbl">Why it matters</span>
+            A whole chain of transforms collapses into one matrix, applied once per point.</div>
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 360 200" width="360" role="img" aria-label="3x3 transformation matrices">
+            <g font-size="12" class="s-text" font-family="monospace">
+              <text x="0" y="20" class="s-dim">Translation T(tx,ty)</text>
+              <text x="10" y="42">| 1  0  tx |</text>
+              <text x="10" y="58">| 0  1  ty |</text>
+              <text x="10" y="74">| 0  0   1 |</text>
+
+              <text x="190" y="20" class="s-dim">Scaling S(sx,sy)</text>
+              <text x="200" y="42">| sx 0  0 |</text>
+              <text x="200" y="58">| 0  sy 0 |</text>
+              <text x="200" y="74">| 0  0  1 |</text>
+
+              <text x="0" y="120" class="s-dim">Rotation R(θ)</text>
+              <text x="10" y="142">| cosθ  -sinθ  0 |</text>
+              <text x="10" y="158">| sinθ   cosθ  0 |</text>
+              <text x="10" y="174">|  0      0    1 |</text>
+            </g>
+          </svg>
+          <div class="cap">Each 2D transform as a 3x3 homogeneous matrix.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12: Composite 2D -->
+    <section class="slide" data-title="2D Composite Transformations">
+      <h2>2D Composite <span class="accent">Transformations</span></h2>
+      <p class="subhead">Combine several transforms into one, but order matters</p>
+      <div class="two-col">
+        <div>
+          <p>Multiplying transform matrices in sequence builds a single composite matrix
+            <code class="inline">M = M3 · M2 · M1</code>. Matrix multiplication is
+            <b>not commutative</b>, so rotating then translating gives a different result
+            from translating then rotating.</p>
+          <div class="callout warn"><span class="lbl">Order matters</span>
+            The rightmost matrix is applied to the point first. Reversing the order changes
+            the final position.</div>
+        </div>
+        <div class="card">
+          <h3>Rotate about a pivot (xr, yr)</h3>
+          <div class="steps">
+            <div class="step"><div class="sn">1</div><div class="sc"><b>Translate</b> the pivot to the origin: <code class="inline">T(-xr, -yr)</code>.</div></div>
+            <div class="step"><div class="sn">2</div><div class="sc"><b>Rotate</b> about the origin by <code class="inline">θ</code>: <code class="inline">R(θ)</code>.</div></div>
+            <div class="step"><div class="sn">3</div><div class="sc"><b>Translate</b> back: <code class="inline">T(xr, yr)</code>.</div></div>
+            <div class="step"><div class="sn">4</div><div class="sc">Composite: <code class="inline">M = T(xr,yr)·R(θ)·T(-xr,-yr)</code>.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13: Reflection and shear -->
+    <section class="slide" data-title="Reflection & Shear">
+      <h2>Other 2D Transforms: <span class="accent">Reflection &amp; Shear</span></h2>
+      <p class="subhead">Mirroring across an axis and slanting a shape</p>
+      <div class="two-col">
+        <div>
+          <h3>Reflection</h3>
+          <p>Produces a mirror image about an axis or line.</p>
+          <ul>
+            <li>About x axis: <code class="inline">x' = x, y' = -y</code></li>
+            <li>About y axis: <code class="inline">x' = -x, y' = y</code></li>
+            <li>About origin: <code class="inline">x' = -x, y' = -y</code></li>
+          </ul>
+          <div class="figure">
+            <svg viewBox="0 0 240 120" width="240" role="img" aria-label="Reflection about y axis">
+              <line x1="120" y1="10" x2="120" y2="110" class="s-border" stroke-width="1" stroke-dasharray="3 3"/>
+              <polygon points="60,90 110,90 85,45" fill="none" class="s-stroke-accent" stroke-width="2"/>
+              <polygon points="180,90 130,90 155,45" fill="none" class="s-stroke-accent" stroke-width="2" stroke-dasharray="4 3"/>
+              <text x="70" y="108" class="s-dim" font-size="11">Original</text>
+              <text x="135" y="108" class="s-dim" font-size="11">Mirror</text>
+            </svg>
+            <div class="cap">Reflection about the y axis flips the shape left to right.</div>
+          </div>
+        </div>
+        <div>
+          <h3>Shear</h3>
+          <p>Slants a shape, shifting one coordinate in proportion to the other.</p>
+          <ul>
+            <li>X shear: <code class="inline">x' = x + shx·y, y' = y</code></li>
+            <li>Y shear: <code class="inline">y' = y + shy·x, x' = x</code></li>
+          </ul>
+          <div class="figure">
+            <svg viewBox="0 0 240 120" width="240" role="img" aria-label="X shear of a square">
+              <rect x="30" y="40" width="60" height="60" fill="none" class="s-stroke-accent" stroke-width="2"/>
+              <polygon points="150,100 210,100 240,40 180,40" fill="none" class="s-stroke-accent" stroke-width="2" stroke-dasharray="4 3"/>
+              <text x="40" y="115" class="s-dim" font-size="11">Square</text>
+              <text x="175" y="115" class="s-dim" font-size="11">Sheared</text>
+            </svg>
+            <div class="cap">An x shear turns a square into a parallelogram.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14: Raster methods -->
+    <section class="slide" data-title="Raster Methods for Transforms">
+      <h2>Raster Methods for <span class="accent">Geometric Transformations</span></h2>
+      <p class="subhead">Working directly on blocks of pixels in the frame buffer</p>
+      <div class="two-col">
+        <div>
+          <p>Instead of transforming coordinates and re drawing, raster methods move and
+            change <b>arrays of stored pixel values</b>. A rectangular block of pixels is
+            copied from one region of the frame buffer to another. This block copy is called
+            a <b>bit block transfer</b>, or <b>bitBlt</b> (a <b>pixBlt</b> for multi bit
+            colour pixels).</p>
+          <ul>
+            <li><b>Translation</b>: copy the pixel block to a new location.</li>
+            <li><b>Rotation by 90, 180, 270</b>: reorder rows and columns directly.</li>
+            <li><b>Scaling</b>: replicate or drop pixels to enlarge or shrink the block.</li>
+          </ul>
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 260 170" width="260" role="img" aria-label="Bit block transfer of a pixel region">
+            <rect x="10" y="10" width="240" height="150" rx="6" class="s-surface s-border" stroke-width="1.5"/>
+            <rect x="30" y="30" width="60" height="50" class="s-fill-accent" opacity="0.85"/>
+            <text x="34" y="98" class="s-dim" font-size="11">Source block</text>
+            <rect x="150" y="90" width="60" height="50" fill="none" class="s-stroke-accent" stroke-width="2" stroke-dasharray="4 3"/>
+            <text x="150" y="156" class="s-dim" font-size="11">Destination</text>
+            <line x1="90" y1="55" x2="150" y2="110" class="s-stroke-accent" stroke-width="2" marker-end="url(#rm)"/>
+            <defs><marker id="rm" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" class="s-fill-accent"/></marker></defs>
+          </svg>
+          <div class="cap">A bitBlt copies a rectangular pixel block to a new position.</div>
+        </div>
+      </div>
+      <div class="callout"><span class="lbl">Why raster methods</span>
+        Copying stored pixels can be faster than recomputing geometry, and hardware often
+        provides a fast block move instruction.</div>
+    </section>
+
+    <!-- 15: OpenGL raster transforms -->
+    <section class="slide" data-title="OpenGL Raster Transformations">
+      <h2>OpenGL Raster <span class="accent">Transformations</span></h2>
+      <p class="subhead">Moving and copying blocks of pixels with OpenGL</p>
+      <div class="two-col">
+        <div>
+          <p>OpenGL works on pixel arrays with a small set of raster functions. A block can
+            be read from the frame buffer, written back at another position, or copied
+            directly.</p>
+          <table class="tbl">
+            <tr><th>Function</th><th>Action</th></tr>
+            <tr><td><code class="inline">glRasterPos*</code></td><td>Set the current raster position</td></tr>
+            <tr><td><code class="inline">glReadPixels</code></td><td>Read a pixel block into memory</td></tr>
+            <tr><td><code class="inline">glDrawPixels</code></td><td>Write a pixel block to the buffer</td></tr>
+            <tr><td><code class="inline">glCopyPixels</code></td><td>Copy a block within the buffer</td></tr>
+            <tr><td><code class="inline">glPixelZoom</code></td><td>Scale a block while drawing</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <h3>Translate a block by copy</h3>
+          <pre><code><span class="tok-com">// copy a block to a new raster position</span>
+<span class="tok-fn">glRasterPos2i</span>(xNew, yNew);
+<span class="tok-fn">glCopyPixels</span>(xSrc, ySrc,
+             width, height,
+             GL_COLOR);
+
+<span class="tok-com">// scale by 2 in x and y</span>
+<span class="tok-fn">glPixelZoom</span>(<span class="tok-num">2.0</span>, <span class="tok-num">2.0</span>);
+<span class="tok-fn">glCopyPixels</span>(xSrc, ySrc,
+             width, height,
+             GL_COLOR);</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16: OpenGL geometric functions -->
+    <section class="slide" data-title="OpenGL Geometric Functions">
+      <h2>OpenGL Geometric <span class="accent">Transformation Functions</span></h2>
+      <p class="subhead">Building the modelview matrix from simple calls</p>
+      <div class="two-col">
+        <div>
+          <div class="tiles" style="grid-template-columns:1fr">
+            <div class="tile"><div class="ic">➡️</div><div class="tx"><h4>glTranslatef(tx,ty,tz)</h4><p>Multiply the current matrix by a translation.</p></div></div>
+            <div class="tile"><div class="ic">🔄</div><div class="tx"><h4>glRotatef(a,x,y,z)</h4><p>Rotate a degrees about the axis (x,y,z).</p></div></div>
+            <div class="tile"><div class="ic">🔍</div><div class="tx"><h4>glScalef(sx,sy,sz)</h4><p>Scale along each axis.</p></div></div>
+          </div>
+          <div class="callout"><span class="lbl">State machine</span>
+            Each call post multiplies the current matrix, so the last call listed is applied
+            to the object first.</div>
+        </div>
+        <div class="card">
+          <h3>Matrix control</h3>
+          <pre><code><span class="tok-fn">glMatrixMode</span>(GL_MODELVIEW);
+<span class="tok-fn">glLoadIdentity</span>();          <span class="tok-com">// reset to identity</span>
+
+<span class="tok-fn">glTranslatef</span>(<span class="tok-num">2.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>);
+<span class="tok-fn">glRotatef</span>(<span class="tok-num">45.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>);
+<span class="tok-fn">glScalef</span>(<span class="tok-num">2.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">1.0</span>);
+
+<span class="tok-fn">drawObject</span>();          <span class="tok-com">// scaled, then rotated, then moved</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17: Push/Pop matrix -->
+    <section class="slide" data-title="glPushMatrix / glPopMatrix">
+      <h2>Matrix Stack: <span class="accent">Push and Pop</span></h2>
+      <p class="subhead">Save and restore the current transform to isolate objects</p>
+      <div class="two-col">
+        <div>
+          <p>OpenGL keeps a <b>stack</b> of matrices. <code class="inline">glPushMatrix</code>
+            saves a copy of the current matrix, and <code class="inline">glPopMatrix</code>
+            restores it. This lets each object be transformed without affecting the next.</p>
+          <div class="steps">
+            <div class="step"><div class="sn">1</div><div class="sc"><b>Push</b> to save the current state.</div></div>
+            <div class="step"><div class="sn">2</div><div class="sc"><b>Transform and draw</b> one object.</div></div>
+            <div class="step"><div class="sn">3</div><div class="sc"><b>Pop</b> to return to the saved state for the next object.</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Two independent objects</h3>
+          <pre><code><span class="tok-fn">glLoadIdentity</span>();
+
+<span class="tok-fn">glPushMatrix</span>();
+    <span class="tok-fn">glTranslatef</span>(<span class="tok-num">-2.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>);
+    <span class="tok-fn">glRotatef</span>(<span class="tok-num">30.0</span>, <span class="tok-num">0</span>, <span class="tok-num">0</span>, <span class="tok-num">1</span>);
+    <span class="tok-fn">drawCube</span>();
+<span class="tok-fn">glPopMatrix</span>();       <span class="tok-com">// undo cube transforms</span>
+
+<span class="tok-fn">glPushMatrix</span>();
+    <span class="tok-fn">glTranslatef</span>(<span class="tok-num">2.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>);
+    <span class="tok-fn">glScalef</span>(<span class="tok-num">1.5</span>, <span class="tok-num">1.5</span>, <span class="tok-num">1.5</span>);
+    <span class="tok-fn">drawSphere</span>();
+<span class="tok-fn">glPopMatrix</span>();</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18: Part C intro -->
+    <section class="slide title-slide" data-title="Part C: 3D Transformations">
+      <span class="kicker">Part C · Chapter 8</span>
+      <h1>3D Geometric<br />Transformations</h1>
+      <p class="lead">Extending translation, rotation and scaling to three dimensions using
+        4x4 matrices, plus composite 3D transforms, reflection, shear and the OpenGL
+        functions that drive them.</p>
+    </section>
+
+    <!-- 19: 3D translation and scaling -->
+    <section class="slide" data-title="3D Translation & Scaling">
+      <h2>3D Translation and <span class="accent">Scaling</span></h2>
+      <p class="subhead">Add a z coordinate and use 4x4 homogeneous matrices</p>
+      <div class="two-col">
+        <div>
+          <h3>Translation</h3>
+          <p>Move a point by <code class="inline">(tx, ty, tz)</code>.</p>
+          <pre><code>x' = x + tx
+y' = y + ty
+z' = z + tz</code></pre>
+          <h3>Scaling</h3>
+          <p>Resize by <code class="inline">(sx, sy, sz)</code> about the origin.</p>
+          <pre><code>x' = x·sx
+y' = y·sy
+z' = z·sz</code></pre>
+        </div>
+        <div class="figure">
+          <svg viewBox="0 0 340 200" width="340" role="img" aria-label="4x4 translation and scaling matrices">
+            <g font-size="12" class="s-text" font-family="monospace">
+              <text x="0" y="20" class="s-dim">Translation T(tx,ty,tz)</text>
+              <text x="10" y="42">| 1 0 0 tx |</text>
+              <text x="10" y="58">| 0 1 0 ty |</text>
+              <text x="10" y="74">| 0 0 1 tz |</text>
+              <text x="10" y="90">| 0 0 0  1 |</text>
+
+              <text x="0" y="130" class="s-dim">Scaling S(sx,sy,sz)</text>
+              <text x="10" y="152">| sx 0  0  0 |</text>
+              <text x="10" y="168">| 0  sy 0  0 |</text>
+              <text x="10" y="184">| 0  0  sz 0 |</text>
+              <text x="10" y="200">| 0  0  0  1 |</text>
+            </g>
+          </svg>
+          <div class="cap">3D transforms use 4x4 homogeneous matrices on points (x,y,z,1).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 20: 3D rotation -->
+    <section class="slide" data-title="3D Rotation">
+      <h2>3D <span class="accent">Rotation</span></h2>
+      <p class="subhead">Rotation is defined about a chosen coordinate axis</p>
+      <div class="three-col">
+        <div class="card tint">
+          <h3>About Z axis</h3>
+          <pre><code>x' = x·cosθ - y·sinθ
+y' = x·sinθ + y·cosθ
+z' = z</code></pre>
+        </div>
+        <div class="card tint">
+          <h3>About X axis</h3>
+          <pre><code>y' = y·cosθ - z·sinθ
+z' = y·sinθ + z·cosθ
+x' = x</code></pre>
+        </div>
+        <div class="card tint">
+          <h3>About Y axis</h3>
+          <pre><code>z' = z·cosθ - x·sinθ
+x' = z·sinθ + x·cosθ
+y' = y</code></pre>
+        </div>
+      </div>
+      <div class="figure">
+        <svg viewBox="0 0 360 150" width="360" role="img" aria-label="3D axes with rotation arrows">
+          <!-- axes -->
+          <line x1="120" y1="120" x2="120" y2="20"  class="s-stroke-accent" stroke-width="2" marker-end="url(#ax3)"/>
+          <line x1="120" y1="120" x2="240" y2="120" class="s-stroke-accent" stroke-width="2" marker-end="url(#ax3)"/>
+          <line x1="120" y1="120" x2="50"  y2="150" class="s-stroke-accent" stroke-width="2" marker-end="url(#ax3)"/>
+          <text x="126" y="24" class="s-dim" font-size="12">Y</text>
+          <text x="244" y="124" class="s-dim" font-size="12">X</text>
+          <text x="40" y="150" class="s-dim" font-size="12">Z</text>
+          <!-- rotation arc -->
+          <path d="M170 70 A40 40 0 0 1 190 110" fill="none" class="s-stroke-accent" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#ax3)"/>
+          <text x="195" y="80" class="s-dim" font-size="11">θ</text>
+          <defs><marker id="ax3" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" class="s-fill-accent"/></marker></defs>
+        </svg>
+        <div class="cap">Right hand rule: positive angle turns counterclockwise about the axis.</div>
+      </div>
+    </section>
+
+    <!-- 21: Composite 3D and other -->
+    <section class="slide" data-title="Composite & Other 3D Transforms">
+      <h2>Composite and Other <span class="accent">3D Transforms</span></h2>
+      <p class="subhead">Combining transforms, and reflection and shear in space</p>
+      <div class="two-col">
+        <div class="card">
+          <h3>Composite 3D transformation</h3>
+          <p>Multiply 4x4 matrices to build one composite. To rotate about an arbitrary
+            axis that does not pass through the origin:</p>
+          <div class="steps">
+            <div class="step"><div class="sn">1</div><div class="sc"><b>Translate</b> the axis to pass through the origin.</div></div>
+            <div class="step"><div class="sn">2</div><div class="sc"><b>Rotate</b> the axis to align with a coordinate axis.</div></div>
+            <div class="step"><div class="sn">3</div><div class="sc"><b>Rotate</b> the object by the required angle.</div></div>
+            <div class="step"><div class="sn">4</div><div class="sc"><b>Reverse</b> steps 2 and 1 to restore the axis.</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Reflection and shear</h3>
+          <ul>
+            <li><b>Reflection</b> about the xy plane: <code class="inline">z' = -z</code>.</li>
+            <li><b>Reflection</b> about the yz plane: <code class="inline">x' = -x</code>.</li>
+            <li><b>Reflection</b> about the xz plane: <code class="inline">y' = -y</code>.</li>
+            <li><b>Z shear</b>: <code class="inline">x' = x + a·z, y' = y + b·z</code>.</li>
+          </ul>
+          <div class="callout"><span class="lbl">Note</span>
+            Reflection about a plane reverses the handedness of the coordinate system.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 22: OpenGL 3D functions -->
+    <section class="slide" data-title="OpenGL 3D Functions">
+      <h2>OpenGL 3D <span class="accent">Transformation Functions</span></h2>
+      <p class="subhead">The same functions extend naturally to three dimensions</p>
+      <div class="two-col">
+        <div>
+          <p>The 3D transform calls take full x, y, z arguments. They post multiply the
+            modelview matrix, and the matrix stack keeps object transforms independent.</p>
+          <table class="tbl">
+            <tr><th>Call</th><th>Meaning</th></tr>
+            <tr><td><code class="inline">glTranslatef(tx,ty,tz)</code></td><td>Move in 3D</td></tr>
+            <tr><td><code class="inline">glRotatef(a,ax,ay,az)</code></td><td>Rotate a degrees about axis</td></tr>
+            <tr><td><code class="inline">glScalef(sx,sy,sz)</code></td><td>Scale in 3D</td></tr>
+            <tr><td><code class="inline">glMultMatrixf(m)</code></td><td>Multiply by a custom matrix</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <h3>Transform a 3D object</h3>
+          <pre><code><span class="tok-fn">glMatrixMode</span>(GL_MODELVIEW);
+<span class="tok-fn">glLoadIdentity</span>();
+
+<span class="tok-fn">glPushMatrix</span>();
+    <span class="tok-fn">glTranslatef</span>(<span class="tok-num">1.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">-3.0</span>);
+    <span class="tok-fn">glRotatef</span>(<span class="tok-num">30.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">1.0</span>, <span class="tok-num">0.0</span>);
+    <span class="tok-fn">glScalef</span>(<span class="tok-num">1.0</span>, <span class="tok-num">2.0</span>, <span class="tok-num">1.0</span>);
+    <span class="tok-fn">glutWireCube</span>(<span class="tok-num">1.0</span>);
+<span class="tok-fn">glPopMatrix</span>();</code></pre>
+        </div>
+      </div>
+      <div class="demo">
+        <div class="demo-head"><span class="dot-live"></span><span class="lbl">Live 3D · three.js (WebGL)</span></div>
+        <div data-demo="cube-3d"></div>
+        <div class="cap">A real WebGL cube rotating about its x and y axes, with the coordinate axes shown.</div>
+      </div>
+    </section>
+
+    <!-- 23: Summary -->
+    <section class="slide" data-title="Summary">
+      <h2>Module 3 <span class="accent">Summary</span></h2>
+      <div class="three-col">
+        <div class="card">
+          <h3>Line Algorithms</h3>
+          <ul>
+            <li>DDA: float steps, rounds each pixel.</li>
+            <li>Bresenham: integer decision parameter, fastest.</li>
+            <li>Bresenham is preferred in real systems.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>2D Transforms</h3>
+          <ul>
+            <li>Translation, rotation, scaling.</li>
+            <li>3x3 homogeneous matrices unify them.</li>
+            <li>Composite order matters.</li>
+            <li>Reflection, shear, raster and OpenGL methods.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>3D Transforms</h3>
+          <ul>
+            <li>4x4 matrices for translate, rotate, scale.</li>
+            <li>Rotation about x, y or z axis.</li>
+            <li>Composite, reflection and shear.</li>
+            <li>OpenGL functions and the matrix stack.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout good"><span class="lbl">Next up</span>
+        Module 4, Interactive Input Methods and Graphical User Interfaces, Chapter 18.</div>
+    </section>
+
+    <section class="slide" data-title="Sources & References">
+      <h2>Sources &amp; <span class="accent">References</span></h2>
+      <p class="subhead">Textbook chapters and official documentation for this module</p>
+      <div class="card">
+        <ul>
+          <li>Hearn, Baker &amp; Carithers, <b>Computer Graphics with OpenGL</b>, 4th ed., Pearson, 2014, <b>Chapter 5</b> (Attribute and Algorithm implementation, line drawing), <b>Chapter 6</b> (2D Geometric Transformations) and <b>Chapter 8</b> (3D Geometric Transformations).</li>
+          <li>Transformation functions:
+            <a href="https://www.opengl.org/sdk/docs/" target="_blank" rel="noopener">OpenGL / GLU reference pages</a>
+            (glTranslatef, glRotatef, glScalef, glMatrixMode).</li>
+          <li>Reference: Edward Angel, <b>Interactive Computer Graphics</b>, 5th ed., Pearson, 2008.</li>
+        </ul>
+      </div>
+      <div class="callout"><span class="lbl">Lecturer</span> Mr. Bharath · B24CS53 Computer Graphics.</div>
+    </section>
+
+  </div>
+
+  <div class="overview">
+    <button class="ov-close" data-ov-close>✕ Close</button>
+    <h3>Module 3 · Slide Overview</h3>
+    <div class="ov-grid"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" data-prev>← Prev</button>
+    <div class="center">
+      <button class="btn mini" data-overview title="Overview (O)">▦</button>
+      <span class="counter" data-counter>1 / 1</span>
+      <button class="btn mini" data-fullscreen title="Fullscreen (F)">⛶</button>
+      <button class="btn mini" data-help title="Keyboard help (H)">?</button>
+    </div>
+    <button class="btn" data-next>Next →</button>
+  </div>
+
+  <div class="help-overlay" aria-hidden="true">
+    <div class="help-card">
+      <h3>Keyboard &amp; Controls</h3>
+      <div class="help-row"><span>Next slide</span><span><span class="kbd">→</span> <span class="kbd">Space</span></span></div>
+      <div class="help-row"><span>Previous slide</span><span><span class="kbd">←</span></span></div>
+      <div class="help-row"><span>First / last slide</span><span><span class="kbd">Home</span> <span class="kbd">End</span></span></div>
+      <div class="help-row"><span>Jump to slide N</span><span><span class="kbd">1</span> … <span class="kbd">9</span></span></div>
+      <div class="help-row"><span>Slide overview</span><span><span class="kbd">O</span></span></div>
+      <div class="help-row"><span>Fullscreen</span><span><span class="kbd">F</span></span></div>
+      <div class="help-row"><span>Print / save as PDF</span><span><span class="kbd">P</span></span></div>
+      <div class="help-row"><span>This help</span><span><span class="kbd">H</span> <span class="kbd">?</span></span></div>
+      <button class="btn help-close" data-help-close>Close</button>
+    </div>
+  </div>
+
+  <script src="../js/deck.js"></script>
+  <script src="../js/visuals.js"></script>
+  <script src="../js/spotlight.js"></script>
+</body>
+</html>
