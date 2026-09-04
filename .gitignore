@@ -1,6 +1,12 @@
 # Working artifacts, not part of the site
 syllabus.txt
 
+# PDF build tooling (kept locally, not part of the hosted site)
+node_modules/
+package.json
+package-lock.json
+build-pdfs.js
+
 # OS / editor cruft
 Thumbs.db
 .DS_Store

@@ -512,7 +512,7 @@ table.tbl tr:hover td { background: rgba(91,140,255,.05); }
 /* Print / export to PDF: stack every slide */
 @media print {
 @media print {
-  @page { size: 1280px 720px; margin: 0; }
+  @page { size: 1280px auto; margin: 0; }
   html, body { background: #0b1020 !important; }
   .topbar, .controls, .overview, .help-overlay, .progress,
   .spotlight-backdrop, .spotlight-stage, .spotlight-hint { display: none !important; }
@@ -520,20 +520,31 @@ table.tbl tr:hover td { background: rgba(91,140,255,.05); }
   .deck::before { display: none !important; }
   .slide {
     position: relative !important; inset: auto !important; display: flex !important;
+    flex-direction: column; justify-content: flex-start;
     opacity: 1 !important; transform: none !important;
-    width: 1280px; height: 720px; min-height: 720px; max-height: 720px;
-    overflow: hidden;
-    padding: 46px 70px 46px !important;
+    width: 1280px; height: auto !important; min-height: 720px; max-height: none !important;
+    overflow: visible !important;
+    padding: 48px 70px 54px !important;
     page-break-after: always; break-after: page;
     page-break-inside: avoid; break-inside: avoid;
   }
   .slide:last-child { page-break-after: auto; break-after: auto; }
   .slide::after { display: none; }
-  /* keep animations/hover from interfering with the print snapshot */
+  /* compact spacing so dense slides fit comfortably */
+  .slide h2 { font-size: 1.9rem; }
+  .slide p, .slide li { font-size: .98rem; }
+  .slide ul, .slide ol { margin-bottom: 8px; }
+  pre { font-size: .8rem; }
+  /* stop animations/hover from interfering with the print snapshot */
   .slide.active > *, .card, .tile, .figure, .demo, .step, .callout, .stat,
   .vs-split .side, .module-card { animation: none !important; transition: none !important; transform: none !important; }
-  /* let the live demo areas collapse gracefully if unrendered */
-  .demo [data-demo]:empty { min-height: 0; }
+  /* interactive demos do not render in a static print, so remove their boxes
+     to avoid empty gaps and possible page overflow */
+  .demo { display: none !important; }
+  /* keep diagrams and reference images within a page */
+  .figure svg, .figure img.src-img { max-height: 360px !important; width: auto !important; }
+  /* never clip cards or figures internally */
+  .card, .figure, .step, .callout, .vs-split .side, .two-col, .three-col, .tiles { overflow: visible !important; }
 }
 /* Print colour accuracy */
 @media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
