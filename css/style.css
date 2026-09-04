@@ -309,6 +309,15 @@ table.tbl tr:hover td { background: rgba(91,140,255,.05); }
   padding:7px 13px; border-radius:10px; font-size:.85rem; color:var(--text-dim);
 }
 .topbar .home-link:hover { border-color: var(--deck-accent); text-decoration:none; color:var(--text); }
+.topbar .pdf-link {
+  display:inline-flex; align-items:center; gap:7px; pointer-events:auto;
+  background: var(--deck-accent, var(--primary)); color:#08122b; font-weight:700;
+  border:1px solid var(--deck-accent, var(--primary));
+  padding:7px 14px; border-radius:10px; font-size:.85rem;
+  transition: transform .12s ease, box-shadow .15s ease, opacity .15s ease;
+}
+.topbar .pdf-link:hover { text-decoration:none; transform: translateY(-1px); box-shadow: 0 8px 22px rgba(0,0,0,.4); opacity:.94; color:#08122b; }
+.topbar .pdf-link:active { transform: translateY(0); }
 .topbar .deck-name { font-size:.9rem; color:var(--muted); }
 
 .progress {
