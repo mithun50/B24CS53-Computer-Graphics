@@ -34,9 +34,9 @@
     loadScript(CDN.anime).then(function () {
       el.innerHTML =
         '<svg viewBox="0 0 260 180" width="260">' +
-        '<rect x="10" y="10" width="240" height="160" rx="8" fill="#161d3a" stroke="#2b3568"/>' +
+        '<rect x="10" y="10" width="240" height="160" rx="8" fill="#f2f2f2" stroke="#cfcfcf"/>' +
         '<g id="rs-grid"></g>' +
-        '<circle id="rs-beam" r="5" fill="var(--deck-accent,#5b8cff)"/></svg>';
+        '<circle id="rs-beam" r="5" fill="var(--deck-accent,#1a1a1a)"/></svg>';
       var grid = el.querySelector("#rs-grid");
       var rows = 6, cols = 12, cellW = 220 / cols, cellH = 150 / rows;
       var dots = [];
@@ -45,7 +45,7 @@
           var cx = 20 + c * cellW + cellW / 2, cy = 20 + r * cellH + cellH / 2;
           var d = document.createElementNS("http://www.w3.org/2000/svg", "circle");
           d.setAttribute("cx", cx); d.setAttribute("cy", cy);
-          d.setAttribute("r", 3); d.setAttribute("fill", "#2b3568");
+          d.setAttribute("r", 3); d.setAttribute("fill", "#cfcfcf");
           grid.appendChild(d); dots.push({ node: d, cx: cx, cy: cy });
         }
       }
@@ -54,11 +54,11 @@
       function step() {
         var d = dots[i];
         window.anime({ targets: beam, cx: d.cx, cy: d.cy, duration: 90, easing: "linear",
-          complete: function () { d.node.setAttribute("fill", "var(--deck-accent,#5b8cff)"); } });
+          complete: function () { d.node.setAttribute("fill", "var(--deck-accent,#1a1a1a)"); } });
         i++;
         if (i >= dots.length) {
           setTimeout(function () {
-            dots.forEach(function (x) { x.node.setAttribute("fill", "#2b3568"); });
+            dots.forEach(function (x) { x.node.setAttribute("fill", "#cfcfcf"); });
             i = 0; step();
           }, 900);
         } else { setTimeout(step, 95); }
@@ -76,7 +76,7 @@
       // grid
       for (var y = 0; y < rows; y++)
         for (var x = 0; x < cols; x++)
-          svg += '<rect x="' + (pad + x * size) + '" y="' + (pad + y * size) + '" width="' + (size - 2) + '" height="' + (size - 2) + '" rx="3" fill="#161d3a" stroke="#2b3568" class="bz" data-x="' + x + '" data-y="' + y + '"/>';
+          svg += '<rect x="' + (pad + x * size) + '" y="' + (pad + y * size) + '" width="' + (size - 2) + '" height="' + (size - 2) + '" rx="3" fill="#f2f2f2" stroke="#cfcfcf" class="bz" data-x="' + x + '" data-y="' + y + '"/>';
       svg += '</svg>';
       el.innerHTML = svg;
       // Bresenham from (0,0) to (13,8)
@@ -93,12 +93,12 @@
       }
       function light(k) {
         if (k >= pts.length) { setTimeout(function () {
-          el.querySelectorAll(".bz").forEach(function (n) { n.setAttribute("fill", "#161d3a"); });
+          el.querySelectorAll(".bz").forEach(function (n) { n.setAttribute("fill", "#f2f2f2"); });
           setTimeout(function () { light(0); }, 500);
         }, 1200); return; }
         var p = pts[k];
         var cell = el.querySelector('.bz[data-x="' + p[0] + '"][data-y="' + p[1] + '"]');
-        if (cell) { cell.setAttribute("fill", "var(--deck-accent,#ffcf5c)");
+        if (cell) { cell.setAttribute("fill", "var(--deck-accent,#1a1a1a)");
           window.anime({ targets: cell, scale: [1.4, 1], duration: 220, easing: "easeOutQuad" }); }
         setTimeout(function () { light(k + 1); }, 160);
       }
@@ -111,11 +111,11 @@
     loadScript(CDN.anime).then(function () {
       el.innerHTML =
         '<svg viewBox="0 0 260 180" width="260">' +
-        '<line x1="10" y1="90" x2="250" y2="90" stroke="#2b3568"/>' +
-        '<line x1="130" y1="10" x2="130" y2="170" stroke="#2b3568"/>' +
+        '<line x1="10" y1="90" x2="250" y2="90" stroke="#cfcfcf"/>' +
+        '<line x1="130" y1="10" x2="130" y2="170" stroke="#cfcfcf"/>' +
         '<rect id="tf-sq" x="-25" y="-25" width="50" height="50" rx="4" ' +
-        'fill="color-mix(in srgb,var(--deck-accent,#ffcf5c) 30%,transparent)" ' +
-        'stroke="var(--deck-accent,#ffcf5c)" stroke-width="2" transform="translate(130,90)"/></svg>' +
+        'fill="color-mix(in srgb,var(--deck-accent,#1a1a1a) 30%,transparent)" ' +
+        'stroke="var(--deck-accent,#1a1a1a)" stroke-width="2" transform="translate(130,90)"/></svg>' +
         '<div class="demo-btns">' +
         '<button class="demo-b" data-a="translate">Translate</button>' +
         '<button class="demo-b" data-a="rotate">Rotate</button>' +
@@ -151,7 +151,7 @@
       var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(w, h); renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
       el.innerHTML = ""; el.appendChild(renderer.domElement);
-      var accent = getComputedStyle(el).getPropertyValue("--deck-accent").trim() || "#ffcf5c";
+      var accent = getComputedStyle(el).getPropertyValue("--deck-accent").trim() || "#1a1a1a";
       var geo = new THREE.BoxGeometry(1.6, 1.6, 1.6);
       var mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(accent), metalness: 0.2, roughness: 0.5 });
       var cube = new THREE.Mesh(geo, mat); scene.add(cube);
@@ -178,8 +178,8 @@
     loadScript(CDN.anime).then(function () {
       el.innerHTML =
         '<svg viewBox="0 0 300 160" width="300">' +
-        '<line x1="10" y1="140" x2="290" y2="140" stroke="#2b3568" stroke-width="2"/>' +
-        '<circle id="bl" cx="30" cy="30" r="14" fill="var(--deck-accent,#c98cff)"/></svg>';
+        '<line x1="10" y1="140" x2="290" y2="140" stroke="#cfcfcf" stroke-width="2"/>' +
+        '<circle id="bl" cx="30" cy="30" r="14" fill="var(--deck-accent,#383838)"/></svg>';
       var ball = el.querySelector("#bl");
       window.anime({ targets: ball, cx: [30, 270], duration: 3000, direction: "alternate",
         loop: true, easing: "easeInOutSine" });
@@ -199,9 +199,9 @@
       }
       el.innerHTML =
         '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '">' +
-        '<line x1="0" y1="' + mid + '" x2="' + w + '" y2="' + mid + '" stroke="#2b3568"/>' +
-        '<path d="' + path + '" fill="none" stroke="#2b3568" stroke-dasharray="3 3"/>' +
-        '<circle id="dot" r="8" fill="var(--deck-accent,#c98cff)"/></svg>';
+        '<line x1="0" y1="' + mid + '" x2="' + w + '" y2="' + mid + '" stroke="#cfcfcf"/>' +
+        '<path d="' + path + '" fill="none" stroke="#cfcfcf" stroke-dasharray="3 3"/>' +
+        '<circle id="dot" r="8" fill="var(--deck-accent,#383838)"/></svg>';
       var dot = el.querySelector("#dot");
       var t = 0;
       (function move() {
@@ -219,7 +219,7 @@
     loadScript(CDN.anime).then(function () {
       el.innerHTML =
         '<svg viewBox="0 0 260 130" width="260">' +
-        '<rect x="10" y="20" width="240" height="90" rx="8" fill="#161d3a" stroke="#2b3568"/>' +
+        '<rect x="10" y="20" width="240" height="90" rx="8" fill="#f2f2f2" stroke="#cfcfcf"/>' +
         '<g id="lcd-cells"></g></svg>' +
         '<div class="demo-btns"><button class="demo-b" data-v="on">Voltage ON</button>' +
         '<button class="demo-b" data-v="off">Voltage OFF</button></div>';
@@ -228,7 +228,7 @@
         var c = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         c.setAttribute("x", 25 + i * 28); c.setAttribute("y", 40);
         c.setAttribute("width", 20); c.setAttribute("height", 50); c.setAttribute("rx", 3);
-        c.setAttribute("fill", "var(--deck-accent,#5b8cff)");
+        c.setAttribute("fill", "var(--deck-accent,#1a1a1a)");
         g.appendChild(c); cells.push(c);
       }
       el.querySelectorAll(".demo-b").forEach(function (b) {
@@ -246,7 +246,7 @@
       var pts = [[30,110],[80,40],[130,95],[185,45],[235,100]];
       el.innerHTML =
         '<svg viewBox="0 0 270 150" width="270">' +
-        '<g id="lm-lines" stroke="var(--deck-accent,#34e0c4)" stroke-width="2.5" fill="none"></g>' +
+        '<g id="lm-lines" stroke="var(--deck-accent,#4d4d4d)" stroke-width="2.5" fill="none"></g>' +
         '<g id="lm-verts"></g></svg>' +
         '<div class="demo-btns">' +
         '<button class="demo-b" data-m="lines">GL_LINES</button>' +
@@ -256,7 +256,7 @@
       pts.forEach(function (p) {
         var c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         c.setAttribute("cx", p[0]); c.setAttribute("cy", p[1]); c.setAttribute("r", 4);
-        c.setAttribute("fill", "#e8ecff"); vg.appendChild(c);
+        c.setAttribute("fill", "#111111"); vg.appendChild(c);
       });
       var lg = el.querySelector("#lm-lines");
       function draw(mode) {
@@ -282,9 +282,9 @@
   demos["rubber-band"] = function (el) {
     el.innerHTML =
       '<svg viewBox="0 0 300 180" width="300" style="touch-action:none;cursor:crosshair">' +
-      '<rect x="0" y="0" width="300" height="180" rx="8" fill="#161d3a" stroke="#2b3568"/>' +
-      '<rect id="rb" fill="color-mix(in srgb,var(--deck-accent,#ff8f6b) 25%,transparent)" ' +
-      'stroke="var(--deck-accent,#ff8f6b)" stroke-width="2" stroke-dasharray="6 4" ' +
+      '<rect x="0" y="0" width="300" height="180" rx="8" fill="#f2f2f2" stroke="#cfcfcf"/>' +
+      '<rect id="rb" fill="color-mix(in srgb,var(--deck-accent,#5c5c5c) 25%,transparent)" ' +
+      'stroke="var(--deck-accent,#5c5c5c)" stroke-width="2" stroke-dasharray="6 4" ' +
       'x="0" y="0" width="0" height="0"/></svg>' +
       '<div class="cap">Press and drag inside the box to rubber band a rectangle.</div>';
     var svg = el.querySelector("svg"), rb = el.querySelector("#rb");
